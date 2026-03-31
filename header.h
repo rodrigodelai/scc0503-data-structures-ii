@@ -11,9 +11,10 @@ typedef struct {
   int pairs;             // 4 bytes: quantidade de pares
 } Header;
 
-Header* new_header();                              // Cria e inicializa um novo header
-void read_header_binary(FILE *bin, Header *hdr);   // Le um header de um arquivo binario
-void write_header_binary(FILE *bin, Header *hdr);  // Escreve um header em um arquivo binario
-void update_header_status(FILE *bin, char status); // Atualiza o status do header no arquivo
+Header* new_header();                                   // Cria e inicializa um novo header
+void read_header_binary(FILE *binary, Header *header);  // Le um header de um arquivo binario
+void write_header_binary(FILE *binary, Header *header); // Escreve um header em um arquivo binario
+void update_header_status(FILE *binary, char status);   // Atualiza o status do header no arquivo
+void print_header(Header *header);
 
 #endif
