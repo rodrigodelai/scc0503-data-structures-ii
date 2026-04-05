@@ -3,9 +3,13 @@
 
 #include "utils.h"
 
+#define HEADER_SIZE 17
+#define RECORD_SIZE 80
+#define NAMES_SIZE  47
+
 typedef struct {
   char removed;                 // 1 byte: '1' removido, '0' não removido
-  int next;                     // 4 bytes: RRN do próximo removido ou -1
+  int next_removed_rrn;         // 4 bytes: RRN do próximo removido ou -1
   
   int station_code;             // 4 bytes: código da estacao
   int line_code;                // 4 bytes: código da linha
@@ -21,10 +25,13 @@ typedef struct {
   char *line_name;              // M bytes: nome da linha; N + M = 43 bytes
 } Record;
 
-Record* read_record_csv(FILE *csv);               // Le um registro de um arquivo csv
-Record* read_record_binary(FILE *bin);            // Le um registro de um arquivo binario
-void write_record_binary(FILE *bin, Record *reg); // Escreve um registro em um arquivo binario
-void print_record(Record *reg);                   // Imprime um registro
+Record* new_record();                             // Cria um novo registro
+boolean read_record_csv(FILE *csv, Record *record);  // Le um registro de um arquivo csv
+void read_record_binary(FILE *bin, Record *record);  // Le um registro de um arquivo binario
+int write_record_binary(FILE *bin, Record *record);  // Escreve um registro em um arquivo binario e retorna o RRN do registro
+void print_record(Record *record);                   // Imprime um registro
+void print_record_one_line(Record *record);          // Imprime um registro em uma linha
+void delete_record(Record **record);                 // Libera a memoria de um registro
 
 #endif
 
