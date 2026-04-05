@@ -5,14 +5,14 @@
 		Trabalho 1: Sistema de Gerenciamento de Arquivo de Dados
 */
 
-#include "utils.h"
+#include "queries.h"
 
 int main() {
 	int queryOption = read_integer();
 
 	switch (queryOption) {
 		case 1:
-			printf("Query 1 selected (CREATE FROM CSV)\n");
+			create_from_csv("./provided-files/estacoes.csv", "estacoes.bin");
 			break;
 		case 2:
 			printf("Query 2 selected (SELECT ALL)\n");
