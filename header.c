@@ -2,7 +2,7 @@
 
 Header* new_header() {
   Header* header = (Header*) calloc(1, sizeof(Header));
-  header->status = '1'; // arquivo consistente
+  header->status = '0'; // arquivo inconsistente
   header->top_rrn = -1; // lista de removidos vazia
   return header;
 }
@@ -40,4 +40,10 @@ void print_header(Header *header) {
   printf("│ %-11s %10d │\n", "stations",  header->stations);
   printf("│ %-11s %10d │\n", "pairs",     header->pairs);
   printf("└────────────────────────┘\n");
+}
+
+void delete_header(Header **header) {
+  if (!header || !*header) return;
+  free(*header);
+  *header = NULL;
 }

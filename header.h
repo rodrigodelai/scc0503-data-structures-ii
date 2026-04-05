@@ -16,5 +16,6 @@ void read_header_binary(FILE *binary, Header *header);  // Le um header de um ar
 void write_header_binary(FILE *binary, Header *header); // Escreve um header em um arquivo binario
 void update_header_status(FILE *binary, char status);   // Atualiza o status do header no arquivo
 void print_header(Header *header);
+void delete_header(Header **header);              // Libera a memória de um header
 
 #endif
