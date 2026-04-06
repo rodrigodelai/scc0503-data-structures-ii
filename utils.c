@@ -6,6 +6,12 @@ int read_integer() {
   return value;
 }
 
+char* read_string() {
+  char *str = malloc(100 * sizeof(char));
+  scanf("%s", str);
+  return str;
+}
+
 void scan_quote_string(char *str) {
   char R;
 

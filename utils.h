@@ -12,6 +12,7 @@ int read_integer();
 void scan_quote_string(char *str);
 void fill_with_trash(char *str, int size);
 void binario_na_tela(const char *arquivo);
+char* read_string();
 char* read_line_csv(FILE *csv);
 
 #endif
