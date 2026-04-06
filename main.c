@@ -12,7 +12,9 @@ int main() {
 
 	switch (queryOption) {
 		case 1:
-			create_from_csv("./provided-files/estacoes.csv", "estacoes.bin");
+			char* csv_filename = read_string();
+			char* bin_filename = read_string();
+			create_from_csv(csv_filename, bin_filename);
 			break;
 		case 2:
 			printf("Query 2 selected (SELECT ALL)\n");
