@@ -14,5 +14,6 @@ void fill_with_trash(char *str, int size);
 void binario_na_tela(const char *arquivo);
 char* read_string();
 char* read_line_csv(FILE *csv);
+int read_optional_int_csv(FILE *csv, char delimiter);
 
 #endif

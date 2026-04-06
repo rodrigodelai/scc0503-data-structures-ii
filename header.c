@@ -33,12 +33,12 @@ void update_header_status_binary(FILE *binary, char status) {
 }
 
 void update_header_control_fields(Header *header, Record *new_record) {
-  if (include_station(header->stations_array, new_record->station_name))
+  if (include_station(header->stations_array, get_station_name(new_record)))
     header->stations++;
-  
-  if (include_pair(header->pairs_array, new_record->station_code, new_record->next_station_code))
+
+  if (include_pair(header->pairs_array, get_station_code(new_record), get_next_station_code(new_record)))
     header->pairs++;
-  
+
   header->next_rrn++;
 }
 
@@ -77,8 +77,8 @@ void populate_stations_array(StationsArray *stations, FILE *binary_file) {
 
   Record *record = new_record();
   while (read_record_binary(binary_file, record)) {
-    if (record->removed == '0' && record->station_name)
-      include_station(stations, record->station_name);
+    if (get_removed(record) == NOT_REMOVED && get_station_name(record))
+      include_station(stations, get_station_name(record));
   }
   delete_record(&record);
 }

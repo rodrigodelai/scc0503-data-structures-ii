@@ -12,6 +12,19 @@ char* read_string() {
   return str;
 }
 
+// Reads an optional int field from CSV (empty field → -1), consuming the delimiter
+int read_optional_int_csv(FILE *csv, char delimiter) {
+  int c = fgetc(csv);
+  if (c == delimiter || c == '\n' || c == '\r' || c == EOF) {
+    if (c == delimiter) ungetc(c, csv);
+    return -1;
+  }
+  ungetc(c, csv);
+  int val = -1;
+  fscanf(csv, "%d", &val);
+  return val;
+}
+
 void scan_quote_string(char *str) {
   char R;
 
