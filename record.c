@@ -26,8 +26,8 @@ Record* new_record() {
   record->integration_line_code    = -1;
   record->integration_station_code = -1;
   record->station_name_size        = 0;
-  record->line_name_size           = 0;
   record->station_name             = NULL;
+  record->line_name_size           = 0;
   record->line_name                = NULL;
   return record;
 }
@@ -84,8 +84,8 @@ boolean read_record_csv(FILE *csv, Record *record) {
   return true;
 }
 
-void read_record_binary(FILE *bin, Record *record) {
-  if (fread(&record->removed, sizeof(char), 1, bin) != 1) return;
+boolean read_record_binary(FILE *bin, Record *record) {
+  if (fread(&record->removed, sizeof(char), 1, bin) != 1) return false;
   fread(&record->next_removed_rrn,         sizeof(int), 1, bin);
   fread(&record->station_code,             sizeof(int), 1, bin);
   fread(&record->line_code,                sizeof(int), 1, bin);
@@ -107,10 +107,10 @@ void read_record_binary(FILE *bin, Record *record) {
     record->line_name[record->line_name_size] = '\0';
   }
 
-  int remaining = NAMES_SIZE - record->station_name_size - (int)sizeof(int) - record->line_name_size;
+  int remaining = NAME_SIZE - record->station_name_size - record->line_name_size;
   if (remaining > 0) fseek(bin, remaining, SEEK_CUR);
 
-  return;
+  return true;
 }
 
 int write_record_binary(FILE *bin, Record *record) {
@@ -131,16 +131,15 @@ int write_record_binary(FILE *bin, Record *record) {
     written += record->station_name_size;
   }
   fwrite(&record->line_name_size,          sizeof(int),  1, bin);
-  written += sizeof(int);
   if (record->line_name_size > 0) {
     fwrite(record->line_name, sizeof(char), record->line_name_size, bin);
     written += record->line_name_size;
   }
 
   // Pad remaining bytes with trash
-  int remaining = NAMES_SIZE - written;
+  int remaining = NAME_SIZE - written;
   if (remaining > 0) {
-    char trash[NAMES_SIZE];
+    char trash[NAME_SIZE];
     fill_with_trash(trash, remaining);
     fwrite(trash, sizeof(char), remaining, bin);
   }

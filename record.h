@@ -5,7 +5,7 @@
 
 #define HEADER_SIZE 17
 #define RECORD_SIZE 80
-#define NAMES_SIZE  47
+#define NAME_SIZE 43
 
 typedef struct {
   char removed;                 // 1 byte: '1' removido, '0' não removido
@@ -27,7 +27,7 @@ typedef struct {
 
 Record* new_record();                             // Cria um novo registro
 boolean read_record_csv(FILE *csv, Record *record);  // Le um registro de um arquivo csv
-void read_record_binary(FILE *bin, Record *record);  // Le um registro de um arquivo binario
+boolean read_record_binary(FILE *bin, Record *record);  // Le um registro de um arquivo binario
 int write_record_binary(FILE *bin, Record *record);  // Escreve um registro em um arquivo binario e retorna o RRN do registro
 void print_record(Record *record);                   // Imprime um registro
 void print_record_one_line(Record *record);          // Imprime um registro em uma linha
