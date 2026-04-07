@@ -99,6 +99,11 @@ void delete_header(Header **header) {
   *header = NULL;
 }
 
+char get_header_status(Header *header) {
+    if (header == NULL) return '0'; // Proteção extra contra ponteiro nulo
+    return header->status;
+}
+
 // ── StationsArray (internal) ──────────────────────────────────────────────────
 
 static StationsArray* new_stations_array() {

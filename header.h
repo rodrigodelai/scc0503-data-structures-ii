@@ -17,5 +17,5 @@ void update_header_status_binary(FILE *binary, char status);            // Atual
 void update_header_control_fields(Header *header, Record *new_record);  // Atualiza os campos de controle do header
 void print_header(Header *header);                      // Imprime o header
 void delete_header(Header **header);                    // Libera a memória de um header
-
+char get_header_status(Header *header);                 // Retorna o status do header
 #endif
