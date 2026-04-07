@@ -31,7 +31,7 @@ void create_from_csv(char *csv_filename, char *bin_filename) {
 
   write_header_binary(bin, header);
   update_header_status_binary(bin, '1');
-  
+
   // cleanup
   delete_record(&record);
   delete_header(&header);
@@ -63,7 +63,9 @@ void select_all(char *bin_filename) {
   Record *record = new_record();
 
   while (read_record_binary(bin, record)) {
-    print_record_one_line(record);
+    if (!is_removed(record)) {
+      print_record_one_line(record);
+    }
   }  
 
   delete_record(&record);
