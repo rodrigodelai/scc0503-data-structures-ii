@@ -9,7 +9,7 @@
 
 int main() {
 	int queryOption = read_integer();
-	int rrn;
+	int rrn, criteria;
 	char *csv_filename;
 	char *bin_filename;
 
@@ -24,7 +24,9 @@ int main() {
 			select_all(bin_filename);
 			break;
 		case 3:
-			printf("Query 3 selected (SELECT WHERE)\n");
+			bin_filename = read_string();
+			criteria = read_integer();
+			select_where(bin_filename, criteria);
 			break;
 		case 4:
 			bin_filename = read_string();
