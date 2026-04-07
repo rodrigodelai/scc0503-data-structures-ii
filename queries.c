@@ -9,6 +9,8 @@ void create_from_csv(char *csv_filename, char *bin_filename) {
     printf("Falha no processamento do arquivo.\n");
     delete_string(&csv_filename);
     delete_string(&bin_filename);
+    csv ? fclose(csv) : 0;
+    bin ? fclose(bin) : 0;
     return;
   }
 
