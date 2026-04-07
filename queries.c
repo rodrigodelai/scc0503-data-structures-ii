@@ -75,4 +75,26 @@ void select_all(char *bin_filename) {
 }
 
 void select_where(char *bin_filename, int num_criteria); // Recupera registros de um arquivo binario que atendem aos criterios
-void select_by_rrn(char *bin_filename, int rrn); // Recupera um registro de um arquivo binario pelo rrn
+
+void select_by_rrn(char *bin_filename, int rrn) {
+  FILE *bin = fopen(bin_filename, "rb");
+
+  if (!bin) {
+    printf("Falha no processamento do arquivo.\n");
+    delete_string(&bin_filename);
+    return;
+  }
+
+  fseek(bin, HEADER_SIZE + (long) rrn * RECORD_SIZE, SEEK_SET);
+
+  Record *record = new_record();
+
+  if (!read_record_binary(bin, record) || is_removed(record))
+    printf("Registro inexistente.\n");
+  else
+    print_record_one_line(record);
+
+  delete_record(&record);
+  delete_string(&bin_filename);
+  fclose(bin);
+}
