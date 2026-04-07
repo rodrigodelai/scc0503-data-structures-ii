@@ -12,12 +12,10 @@ int main() {
 
 	switch (queryOption) {
 		case 1:
-			char* csv_filename = read_string();
-			char* bin_filename = read_string();
-			create_from_csv(csv_filename, bin_filename);
+			create_from_csv(read_string(), read_string());
 			break;
 		case 2:
-			printf("Query 2 selected (SELECT ALL)\n");
+			select_all(read_string());
 			break;
 		case 3:
 			printf("Query 3 selected (SELECT WHERE)\n");
