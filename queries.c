@@ -116,15 +116,30 @@ void select_where(char *bin_filename, int n) {
   }
   //loop para ler os critérios de busca, percorrer os registros e imprimir os que correspondem aos critérios
   for (int i = 0; i < n; i++) {
-    int m;
-    scanf("%d", &m);
+            int m;
+            scanf("%d", &m); 
+            //Alocação de memória para os critérios de busca, onde cada critério tem um nome e um valor
+            Criterion *criteria = malloc(m * sizeof(Criterion));
+            for (int j = 0; j < m; j++) {
+                scanf("%s", criteria[j].name);           
+                
+                // Para ler o valor do critério, precisamos considerar que ele pode ser uma string entre aspas ou um valor simples (ex: 2 ou NULO).
+                scanf(" "); // Consome todos os espaços vazios e quebras de linha residuais
+                char c = getchar(); // Lê o próximo caractere para verificar se é uma string entre aspas ou um valor simples
+                ungetc(c, stdin);   // Devolve o caractere para a memória do teclado
+                
+                if (c == '"') {
+                    // Se for uma string entre aspas, a função scan_quote_string irá ler a string completa, incluindo espaços, até encontrar a próxima aspa
+                    scan_quote_string(criteria[j].value);    
+                } else {
+                    // Se for um número ou a palavra NULO, lê normalmente até o próximo espaço ou quebra de linha
+                    scanf("%s", criteria[j].value);
+                    if (strcmp(criteria[j].value, "NULO") == 0) {
+                        criteria[j].value[0] = '\0'; // Mantém o padrão de nulos
+                    }
+                }
+            }
 
-    //Alocação de memória para os critérios de busca e leitura dos mesmos
-    Criterion *criteria = malloc(m * sizeof(Criterion));
-    for (int j = 0; j < m; j++) {
-      scanf("%s", criteria[j].name);
-      scan_quote_string(criteria[j].value);
-    }
     //Posiciona o ponteiro do arquivo logo após o header para começar a leitura dos registros
     fseek(bin, 17, SEEK_SET);
     int found = 0;
