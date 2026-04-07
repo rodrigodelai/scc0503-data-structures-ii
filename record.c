@@ -96,6 +96,8 @@ boolean read_record_binary(FILE *bin, Record *record) {
   fread(&record->next_station_distance,    sizeof(int), 1, bin);
   fread(&record->integration_line_code,    sizeof(int), 1, bin);
   fread(&record->integration_station_code, sizeof(int), 1, bin);
+
+  free(record->station_name); record->station_name = NULL;
   fread(&record->station_name_size,        sizeof(int), 1, bin);
   if (record->station_name_size > 0) {
     record->station_name = malloc(record->station_name_size + 1);
@@ -103,6 +105,7 @@ boolean read_record_binary(FILE *bin, Record *record) {
     record->station_name[record->station_name_size] = '\0';
   }
 
+  free(record->line_name); record->line_name = NULL;
   fread(&record->line_name_size,           sizeof(int), 1, bin);
   if (record->line_name_size > 0) {
     record->line_name = malloc(record->line_name_size + 1);
@@ -170,15 +173,30 @@ void print_record(Record *reg) {
 }
 
 void print_record_one_line(Record *record) {
-  printf("%d,%s,%d,%s,%d,%d,%d,%d\n",
+  char line_code_str[12], next_station_code_str[12],
+       next_station_distance_str[12], integration_line_code_str[12],
+       integration_station_code_str[12];
+
+  if (record->line_code > 0)
+    snprintf(line_code_str, sizeof(line_code_str), "%d", record->line_code);
+  if (record->next_station_code > 0)
+    snprintf(next_station_code_str, sizeof(next_station_code_str), "%d", record->next_station_code);
+  if (record->next_station_distance > 0)
+    snprintf(next_station_distance_str, sizeof(next_station_distance_str), "%d", record->next_station_distance);
+  if (record->integration_line_code > 0)
+    snprintf(integration_line_code_str, sizeof(integration_line_code_str), "%d", record->integration_line_code);
+  if (record->integration_station_code > 0)
+    snprintf(integration_station_code_str, sizeof(integration_station_code_str), "%d", record->integration_station_code);
+
+  printf("%d %s %s %s %s %s %s %s\n",
     record->station_code,
-    record->station_name ? record->station_name : "",
-    record->line_code,
-    record->line_name ? record->line_name : "",
-    record->next_station_code,
-    record->next_station_distance,
-    record->integration_line_code,
-    record->integration_station_code);
+    record->station_name,
+    record->line_code > 0             ? line_code_str              : "NULO",
+    record->line_name                 ? record->line_name           : "NULO",
+    record->next_station_code > 0     ? next_station_code_str       : "NULO",
+    record->next_station_distance > 0 ? next_station_distance_str   : "NULO",
+    record->integration_line_code > 0 ? integration_line_code_str   : "NULO",
+    record->integration_station_code > 0 ? integration_station_code_str : "NULO");
 }
 
 void delete_record(Record **record) {
