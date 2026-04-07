@@ -20,7 +20,7 @@ void print_record_one_line(Record *record);             // Imprime um registro e
 void delete_record(Record **record);                    // Libera a memoria de um registro
 
 // Getters
-Removed get_removed(Record *record);
+boolean is_removed(Record *record);
 int get_next_removed_rrn(Record *record);
 int get_station_code(Record *record);
 int get_line_code(Record *record);

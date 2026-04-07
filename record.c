@@ -208,7 +208,7 @@ void delete_record(Record **record) {
 }
 
 // Getters
-Removed get_removed(Record *record)                { return record->removed; }
+boolean is_removed(Record *record)                 { return record->removed == REMOVED; }
 int     get_next_removed_rrn(Record *record)       { return record->next_removed_rrn; }
 int     get_station_code(Record *record)           { return record->station_code; }
 int     get_line_code(Record *record)              { return record->line_code; }
