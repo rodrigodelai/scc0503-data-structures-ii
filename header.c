@@ -1,5 +1,42 @@
 #include "header.h"
 
+// ── Internal struct definitions ───────────────────────────────────────────────
+
+typedef struct {
+  int capacity;
+  int size;
+  char** stations;
+} StationsArray;
+
+typedef struct {
+  boolean present[1000][1000];
+} PairsArray;
+
+struct header_st {
+  char status;           // 1 byte: '0' inconsistente, '1' consistente
+  int top_rrn;           // 4 bytes: RRN do ultimo registro removido
+  int next_rrn;          // 4 bytes: proximo RRN disponivel
+  int stations;          // 4 bytes: quantidade de estações
+  int pairs;             // 4 bytes: quantidade de pares
+
+  StationsArray* stations_array; // identifica estacoes unicas
+  PairsArray* pairs_array;       // identifica pares de estacoes
+};
+
+// ── Static forward declarations (internal) ───────────────────────────────────────────────
+
+static StationsArray* new_stations_array();
+static boolean include_station(StationsArray *stations, const char *name);
+static boolean is_station_present(StationsArray *stations, const char *name);
+static void delete_stations_array(StationsArray **stations);
+
+static PairsArray* new_pairs_array();
+static boolean include_pair(PairsArray *pairs, int station_code, int next_station_code);
+static boolean is_pair_present(PairsArray *pairs, int station_code, int next_station_code);
+static void delete_pairs_array(PairsArray **pairs);
+
+// ── Header public functions ───────────────────────────────────────────────────
+
 Header* new_header() {
   Header* header = (Header*) calloc(1, sizeof(Header));
   header->status = '0'; // arquivo inconsistente
@@ -62,9 +99,9 @@ void delete_header(Header **header) {
   *header = NULL;
 }
 
+// ── StationsArray (internal) ──────────────────────────────────────────────────
 
-// StationsArray Functions
-StationsArray* new_stations_array() {
+static StationsArray* new_stations_array() {
   StationsArray *stations = malloc(sizeof(StationsArray));
   stations->capacity = 64;
   stations->size = 0;
@@ -72,44 +109,27 @@ StationsArray* new_stations_array() {
   return stations;
 }
 
-void populate_stations_array(StationsArray *stations, FILE *binary_file) {
-  fseek(binary_file, HEADER_SIZE, SEEK_SET);
-
-  Record *record = new_record();
-  while (read_record_binary(binary_file, record)) {
-    if (get_removed(record) == NOT_REMOVED && get_station_name(record))
-      include_station(stations, get_station_name(record));
-  }
-  delete_record(&record);
-}
-
-boolean include_station(StationsArray *stations, const char *name) {
-  if (!name) return false;
-  int i;
-  for (i = 0; i < stations->size; i++)
-    if (strcmp(stations->stations[i], name) == 0) return false; // already present
+static boolean include_station(StationsArray *stations, const char *name) {
+  if (!name || is_station_present(stations, name)) return false;
+  int i = stations->size;
   if (i >= stations->capacity) {
     stations->capacity *= 2;
     stations->stations = realloc(stations->stations, stations->capacity * sizeof(char*));
     memset(stations->stations + i, 0, (stations->capacity - i) * sizeof(char*));
   }
-  stations->stations[i] = strdup(name); // append at end
+  stations->stations[i] = strdup(name);
   stations->size++;
   return true;
 }
 
-int count_stations(StationsArray *stations) {
-  return stations->size;
-}
-
-boolean is_station_present(StationsArray *stations, const char *name) {
+static boolean is_station_present(StationsArray *stations, const char *name) {
   if (!name) return false;
   for (int i = 0; i < stations->size; i++)
     if (strcmp(stations->stations[i], name) == 0) return true;
   return false;
 }
 
-void delete_stations_array(StationsArray **stations) {
+static void delete_stations_array(StationsArray **stations) {
   if (!stations || !*stations) return;
   for (int i = 0; i < (*stations)->size; i++)
     free((*stations)->stations[i]);
@@ -118,34 +138,26 @@ void delete_stations_array(StationsArray **stations) {
   *stations = NULL;
 }
 
-// PairsArray Functions
-PairsArray* new_pairs_array() {
+// ── PairsArray (internal) ─────────────────────────────────────────────────────
+
+static PairsArray* new_pairs_array() {
   PairsArray *pairs = calloc(1, sizeof(PairsArray));
   return pairs;
 }
 
-boolean include_pair(PairsArray *pairs, int station_code, int next_station_code) {
+static boolean include_pair(PairsArray *pairs, int station_code, int next_station_code) {
   if (!pairs || station_code < 0 || station_code >= 1000 || next_station_code < 0 || next_station_code >= 1000) return false;
   if (is_pair_present(pairs, station_code, next_station_code)) return false;
   pairs->present[station_code][next_station_code] = true;
   return true;
 }
 
-int count_pairs(PairsArray *pairs) {
-  if (!pairs) return 0;
-  int count = 0;
-  for (int i = 0; i < 1000; i++)
-    for (int j = 0; j < 1000; j++)
-      if (pairs->present[i][j]) count++;
-  return count;
-}
-
-boolean is_pair_present(PairsArray *pairs, int station_code, int next_station_code) {
+static boolean is_pair_present(PairsArray *pairs, int station_code, int next_station_code) {
   if (!pairs || station_code < 0 || station_code >= 1000 || next_station_code < 0 || next_station_code >= 1000) return false;
   return pairs->present[station_code][next_station_code];
 }
 
-void delete_pairs_array(PairsArray **pairs) {
+static void delete_pairs_array(PairsArray **pairs) {
   if (!pairs || !*pairs) return;
   free(*pairs);
   *pairs = NULL;

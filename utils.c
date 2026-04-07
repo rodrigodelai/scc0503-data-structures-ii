@@ -1,5 +1,11 @@
 #include "utils.h"
 
+void delete_string(char **str) {
+  if (!str || !*str) return;
+  free(*str);
+  *str = NULL;
+}
+
 int read_integer() {
   int value;
   scanf("%d", &value);
