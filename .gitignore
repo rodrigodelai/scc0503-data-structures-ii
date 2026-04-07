@@ -1,2 +1,6 @@
 executable
-./provided-files/*
+*.bin
+*.in
+*.out
+*.zip
+*.csv
