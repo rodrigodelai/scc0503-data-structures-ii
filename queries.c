@@ -44,6 +44,33 @@ void create_from_csv(char *csv_filename, char *bin_filename) {
   delete_string(&bin_filename);
 }
 
-void select_all(char *bin_filename); // Recupera todos os registros de um arquivo binario
+void select_all(char *bin_filename) {
+  // open file
+  FILE *bin = fopen(bin_filename, "rb");
+
+  if (!bin) {
+    printf("Falha no processamento do arquivo.\n");
+    delete_string(&bin_filename);
+    fclose(bin);
+    return;
+  }
+
+  // read header
+  Header *header = new_header();
+  read_header_binary(bin, header);
+
+  // read and print records
+  Record *record = new_record();
+
+  while (read_record_binary(bin, record)) {
+    print_record_one_line(record);
+  }  
+
+  delete_record(&record);
+  delete_header(&header);
+  delete_string(&bin_filename);
+  fclose(bin);
+}
+
 void select_where(char *bin_filename, int num_criteria); // Recupera registros de um arquivo binario que atendem aos criterios
 void select_by_rrn(char *bin_filename, int rrn); // Recupera um registro de um arquivo binario pelo rrn
