@@ -8,14 +8,19 @@
 #include "queries.h"
 
 int main() {
+	char *csv_filename;
+	char *bin_filename;
 	int queryOption = read_integer();
 
 	switch (queryOption) {
 		case 1:
-			create_from_csv(read_string(), read_string());
+			csv_filename = read_string();
+			bin_filename = read_string();
+			create_from_csv(csv_filename, bin_filename);
 			break;
 		case 2:
-			select_all(read_string());
+			bin_filename = read_string();
+			select_all(bin_filename);
 			break;
 		case 3:
 			printf("Query 3 selected (SELECT WHERE)\n");
