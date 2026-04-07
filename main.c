@@ -8,9 +8,10 @@
 #include "queries.h"
 
 int main() {
+	int queryOption = read_integer();
+	int rrn;
 	char *csv_filename;
 	char *bin_filename;
-	int queryOption = read_integer();
 
 	switch (queryOption) {
 		case 1:
@@ -26,7 +27,9 @@ int main() {
 			printf("Query 3 selected (SELECT WHERE)\n");
 			break;
 		case 4:
-			printf("Query 4 selected (SELECT BY RRN)\n");
+			bin_filename = read_string();
+			rrn = read_integer();
+			select_by_rrn(bin_filename, rrn);
 			break;
 		default:
 			printf("Invalid query option\n");
