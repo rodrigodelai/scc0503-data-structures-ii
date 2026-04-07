@@ -18,16 +18,25 @@ char* read_string() {
   return str;
 }
 
+// Reads an optional string field from CSV (empty field → NULL), consuming the delimiter
+char* read_optional_string_csv(FILE *csv, char delimiter) {
+  int c = fgetc(csv);
+  if (c == delimiter || c == '\n' || c == '\r' || c == EOF) return NULL;
+  ungetc(c, csv);
+  char buffer[44] = {0};
+  fscanf(csv, "%43[^,\n]", buffer);
+  fgetc(csv); // consume delimiter
+  return strdup(buffer);
+}
+
 // Reads an optional int field from CSV (empty field → -1), consuming the delimiter
 int read_optional_int_csv(FILE *csv, char delimiter) {
   int c = fgetc(csv);
-  if (c == delimiter || c == '\n' || c == '\r' || c == EOF) {
-    if (c == delimiter) ungetc(c, csv);
-    return -1;
-  }
+  if (c == delimiter || c == '\n' || c == '\r' || c == EOF) return -1;
   ungetc(c, csv);
   int val = -1;
   fscanf(csv, "%d", &val);
+  fgetc(csv); // consume delimiter
   return val;
 }
 
