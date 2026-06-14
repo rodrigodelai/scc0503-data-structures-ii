@@ -73,41 +73,49 @@ boolean read_record_csv(FILE *csv, Record *record) {
 }
 
 boolean read_record_binary(FILE *bin, Record *record) {
-  if (fread(&record->removed, sizeof(char), 1, bin) != 1) // le o campo removido
-    return false; // retorna falso em caso de erro
+  // Lê apenas o campo removido primeiro
+  if (fread(&record->removed, sizeof(char), 1, bin) != 1) 
+    return false;
 
-  fread(&record->next_removed_rrn,         sizeof(int), 1, bin); // | 
-  fread(&record->station_code,             sizeof(int), 1, bin); // |
-  fread(&record->line_code,                sizeof(int), 1, bin); // |
-  fread(&record->next_station_code,        sizeof(int), 1, bin); // | leitura campo a campo
-  fread(&record->next_station_distance,    sizeof(int), 1, bin); // | 
-  fread(&record->integration_line_code,    sizeof(int), 1, bin); // |
-  fread(&record->integration_station_code, sizeof(int), 1, bin); // |
+  // Se o registro estiver removido, pula o resto do registro (80 - 1 = 79 bytes)
+  if (record->removed == '1') {
+    fseek(bin, RECORD_SIZE - sizeof(char), SEEK_CUR);
+    return true; // Leu com sucesso, mas é um registro que deve ser ignorado depois
+  }
+
+  // Se não estiver removido, continua lendo os demais campos normalmente
+  fread(&record->next_removed_rrn,         sizeof(int), 1, bin); 
+  fread(&record->station_code,             sizeof(int), 1, bin); 
+  fread(&record->line_code,                sizeof(int), 1, bin); 
+  fread(&record->next_station_code,        sizeof(int), 1, bin); 
+  fread(&record->next_station_distance,    sizeof(int), 1, bin); 
+  fread(&record->integration_line_code,    sizeof(int), 1, bin); 
+  fread(&record->integration_station_code, sizeof(int), 1, bin); 
   
   fread(&record->station_name_size,        sizeof(int), 1, bin);
-  free(record->station_name); // libera memoria se ja houver algo
-  record->station_name = NULL; // inicializa como NULL
+  free(record->station_name); 
+  record->station_name = NULL; 
 
-  if (record->station_name_size > 0) { // se o tamanho for maior que 0, aloca memoria
-    record->station_name = malloc(record->station_name_size + 1); // +1 byte para o caractere nulo
-    fread(record->station_name, sizeof(char), record->station_name_size, bin); // le o nome da estacao
-    record->station_name[record->station_name_size] = '\0'; // adiciona o caractere nulo ao final
+  if (record->station_name_size > 0) { 
+    record->station_name = malloc(record->station_name_size + 1); 
+    fread(record->station_name, sizeof(char), record->station_name_size, bin); 
+    record->station_name[record->station_name_size] = '\0'; 
   }
 
-  fread(&record->line_name_size,           sizeof(int), 1, bin); // le o tamanho do nome da linha
-  free(record->line_name); // libera memoria se ja houver algo
-  record->line_name = NULL; // inicializa como NULL
+  fread(&record->line_name_size,           sizeof(int), 1, bin); 
+  free(record->line_name); 
+  record->line_name = NULL; 
 
-  if (record->line_name_size > 0) { // se o tamanho for maior que 0, aloca memoria
-    record->line_name = malloc(record->line_name_size + 1); // +1 byte para o caractere nulo
-    fread(record->line_name, sizeof(char), record->line_name_size, bin); // le o nome da linha
-    record->line_name[record->line_name_size] = '\0'; // adiciona o caractere nulo ao final
+  if (record->line_name_size > 0) { 
+    record->line_name = malloc(record->line_name_size + 1); 
+    fread(record->line_name, sizeof(char), record->line_name_size, bin); 
+    record->line_name[record->line_name_size] = '\0'; 
   }
 
-  int remaining = NAME_SIZE - record->station_name_size - record->line_name_size; // calcula os bytes restantes
-  if (remaining > 0) fseek(bin, remaining, SEEK_CUR); // pula os bytes restantes
+  int remaining = NAME_SIZE - record->station_name_size - record->line_name_size; 
+  if (remaining > 0) fseek(bin, remaining, SEEK_CUR); 
 
-  return true; // leu com sucesso
+  return true; 
 }
 
 int write_record_binary(FILE *bin, Record *record) {

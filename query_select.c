@@ -19,53 +19,7 @@ typedef struct {
  */
 static boolean match_record(Record *r, Criterion *criteria, int m);
 
-
-
 // Implementacao de funcoes expostas no cabecalho ─────────────────────────────
-
-void create_from_csv(char *csv_filename, char *bin_filename) {
-  // open files
-  FILE *csv = fopen(csv_filename, "r");
-  FILE *bin = fopen(bin_filename, "wb");
-
-  if (!csv || !bin) {
-    printf("Falha no processamento do arquivo.\n");
-    delete_string(&csv_filename);
-    delete_string(&bin_filename);
-    csv ? fclose(csv) : 0;
-    bin ? fclose(bin) : 0;
-    return;
-  }
-
-  // skip header info
-  free(read_line_csv(csv));
-
-  // write empty header
-  Header *header = new_header();
-  write_header_binary(bin, header);
-
-  // copy records from csv to binary
-  Record *record = new_record();
-
-  while (read_record_csv(csv, record)) {
-    write_record_binary(bin, record);
-    update_header_control_fields(header, record);
-  }
-
-  write_header_binary(bin, header);
-  update_header_status_binary(bin, '1');
-
-  // cleanup
-  delete_record(&record);
-  delete_header(&header);
-  fclose(csv);
-  fclose(bin);
-
-  // output verification
-  binario_na_tela(bin_filename);
-  delete_string(&csv_filename);
-  delete_string(&bin_filename);
-}
 
 void select_all(char *bin_filename) {
   // open file
@@ -74,13 +28,21 @@ void select_all(char *bin_filename) {
   if (!bin) {
     printf("Falha no processamento do arquivo.\n");
     delete_string(&bin_filename);
-    fclose(bin);
     return;
   }
 
   // read header
   Header *header = new_header();
   read_header_binary(bin, header);
+
+  // VERIFICAÇÃO DO STATUS DO CABEÇALHO (Correção do Seg Fault)
+  if (get_header_status(header) == '0') {
+    printf("Falha no processamento do arquivo.\n");
+    delete_header(&header);
+    delete_string(&bin_filename);
+    fclose(bin);
+    return;
+  }
 
   // read and print records
   Record *record = new_record();
@@ -104,51 +66,51 @@ void select_where(char *bin_filename, int n) {
     printf("Falha no processamento do arquivo.\n");
     return;
   }
+  
   // Lê o header do arquivo binário para verificar seu status
   Header *header = new_header();
   read_header_binary(bin, header);
-  // Verifica se o status do header é '0' (inconsistente). Se for, libera memória e fecha o arquivo.
+  
+  // Verifica se o status do header é '0' (inconsistente).
   if (get_header_status(header) == '0') {
     printf("Falha no processamento do arquivo.\n");
     delete_header(&header);
     fclose(bin);
     return;
   }
-  //loop para ler os critérios de busca, percorrer os registros e imprimir os que correspondem aos critérios
+  
+  //loop para ler os critérios de busca
   for (int i = 0; i < n; i++) {
-            int m;
-            scanf("%d", &m); 
-            //Alocação de memória para os critérios de busca, onde cada critério tem um nome e um valor
-            Criterion *criteria = malloc(m * sizeof(Criterion));
-            for (int j = 0; j < m; j++) {
-                scanf("%s", criteria[j].name);           
-                
-                // Para ler o valor do critério, precisamos considerar que ele pode ser uma string entre aspas ou um valor simples (ex: 2 ou NULO).
-                scanf(" "); // Consome todos os espaços vazios e quebras de linha residuais
-                char c = getchar(); // Lê o próximo caractere para verificar se é uma string entre aspas ou um valor simples
-                ungetc(c, stdin);   // Devolve o caractere para a memória do teclado
-                
-                if (c == '"') {
-                    // Se for uma string entre aspas, a função scan_quote_string irá ler a string completa, incluindo espaços, até encontrar a próxima aspa
-                    scan_quote_string(criteria[j].value);    
-                } else {
-                    // Se for um número ou a palavra NULO, lê normalmente até o próximo espaço ou quebra de linha
-                    scanf("%s", criteria[j].value);
-                    if (strcmp(criteria[j].value, "NULO") == 0) {
-                        criteria[j].value[0] = '\0'; // Mantém o padrão de nulos
-                    }
-                }
-            }
+    int m;
+    scanf("%d", &m);
 
-    //Posiciona o ponteiro do arquivo logo após o header para começar a leitura dos registros
+    //Alocação de memória para os critérios de busca
+    Criterion *criteria = malloc(m * sizeof(Criterion));
+    boolean search_by_unique_key = false;
+
+    for (int j = 0; j < m; j++) {
+      scanf("%s", criteria[j].name);
+      scan_quote_string(criteria[j].value);
+
+      // Verifica se a busca envolve a chave primária
+      if (strcmp(criteria[j].name, "codEstacao") == 0) {
+        search_by_unique_key = true;
+      }
+    }
+    
     fseek(bin, 17, SEEK_SET);
     int found = 0;
     Record *record = new_record();
-    //Loop para ler os registros do arquivo binário e verificar se correspondem aos critérios de busca usando a função match_record
+    
     while (read_record_binary(bin, record)) {
       if (!is_removed(record) && match_record(record, criteria, m)) {
         print_record_one_line(record);
         found++;
+
+        // INTERROMPE A BUSCA NA CHAVE PRIMÁRIA (Otimização)
+        if (search_by_unique_key) {
+            break; 
+        }
       }
     }
 
@@ -173,6 +135,16 @@ void select_by_rrn(char *bin_filename, int rrn) {
     return;
   }
 
+  // CHECAR STATUS DO HEADER (Correção do Seg Fault)
+  char status;
+  fread(&status, sizeof(char), 1, bin);
+  if (status == '0') {
+    printf("Falha no processamento do arquivo.\n");
+    delete_string(&bin_filename);
+    fclose(bin);
+    return;
+  }
+
   fseek(bin, HEADER_SIZE + (long) rrn * RECORD_SIZE, SEEK_SET);
 
   Record *record = new_record();
@@ -186,8 +158,6 @@ void select_by_rrn(char *bin_filename, int rrn) {
   delete_string(&bin_filename);
   fclose(bin);
 }
-
-
 
 // Implementacao de funcoes internas ──────────────────────────────────────────
 
