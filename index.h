@@ -22,4 +22,11 @@ typedef struct {
  */
 void create_index(char *bin_filename, char *index_filename);
 
+/**
+ * Busca o RRN de uma estação no arquivo de índice usando Busca Binária.
+ * @param index_filename Nome do arquivo de índice.
+ * @param target_cod Codigo da estação buscada.
+ * @return O RRN correspondente, ou -1 se não for encontrado.
+ */
+int search_index(char *index_filename, int target_cod);
 #endif // INDEX_H

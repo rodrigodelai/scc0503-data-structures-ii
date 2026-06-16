@@ -43,6 +43,13 @@ int main() {
 		default:
 			printf("Invalid query option\n");
 			break;
+		case 6:
+            bin_filename = read_string();
+            char *index_filename_6 = read_string(); // Nome diferente para evitar conflito de escopo dependendo da compilação
+            int num_searches = read_integer();
+            select_where_indexed(bin_filename, index_filename_6, num_searches);
+            delete_string(&index_filename_6);
+            break;
 	}
 
 	return 0;

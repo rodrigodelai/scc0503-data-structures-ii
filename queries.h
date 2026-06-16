@@ -32,4 +32,12 @@ void select_where(char *bin_filename, int num_criteria);
  */
 void select_by_rrn(char *bin_filename, int rrn);
 
+/**
+ * [Funcionalidade 6] Recupera registros otimizados com índice primário.
+ * @param bin_filename Nome do arquivo de dados.
+ * @param index_filename Nome do arquivo de índice primário.
+ * @param num_searches Numero de buscas a serem realizadas.
+ */
+void select_where_indexed(char *bin_filename, char *index_filename, int num_searches);
+
 #endif // QUERIES_H

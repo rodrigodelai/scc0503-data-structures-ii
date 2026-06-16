@@ -1,4 +1,5 @@
 #include "queries.h"
+#include "index.h"
 
 // Declaracoes de estruturas internas ─────────────────────────────────────────
 
@@ -172,6 +173,97 @@ void select_by_rrn(char *bin_filename, int rrn) {
 
   delete_record(&record);
   delete_string(&bin_filename);
+  fclose(bin);
+}
+
+void select_where_indexed(char *bin_filename, char *index_filename, int n) {
+  FILE *bin = fopen(bin_filename, "rb");
+  if (!bin) {
+    printf("Falha no processamento do arquivo.\n");
+    return;
+  }
+  
+  Header *header = new_header();
+  read_header_binary(bin, header);
+  if (get_header_status(header) == '0') { // Status inconsistente
+    printf("Falha no processamento do arquivo.\n");
+    delete_header(&header);
+    fclose(bin);
+    return;
+  }
+  
+  for (int i = 0; i < n; i++) {
+    int m;
+    scanf("%d", &m);
+
+    Criterion *criteria = malloc(m * sizeof(Criterion));
+    int target_codEstacao = -1; // -1 indica que a chave primária não é critério
+
+    for (int j = 0; j < m; j++) {
+      scanf("%s", criteria[j].name);
+
+      // Checa se o campo buscado é do tipo string
+      if (strcmp(criteria[j].name, "nomeEstacao") == 0 || 
+          strcmp(criteria[j].name, "nomeLinha") == 0) {
+          
+        scan_quote_string(criteria[j].value);
+        
+      } else {
+        // Se for um campo numérico, lemos com scanf normal
+        scanf("%s", criteria[j].value);
+        
+        if (strcmp(criteria[j].value, "NULO") == 0) {
+          criteria[j].value[0] = '\0';
+        }
+      }
+
+      // Checa se o usuário está buscando pela chave primária (e não é um valor NULO)
+      // Isso é crucial para a Funcionalidade 6 saber se deve usar o Índice ou não
+      if (strcmp(criteria[j].name, "codEstacao") == 0 && criteria[j].value[0] != '\0') {
+        target_codEstacao = atoi(criteria[j].value);
+      }
+    }
+    
+    int found = 0;
+    Record *record = new_record();
+    
+    if (target_codEstacao != -1) {
+      // ========= BUSCA INDEXADA (Otimizada) =========
+      int target_rrn = search_index(index_filename, target_codEstacao);
+      
+      if (target_rrn != -1) {
+        fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET); // Pula direto pro registro
+        
+        if (read_record_binary(bin, record)) {
+          // Mesmo achando no índice, precisamos verificar se não foi removido e se atende a OUTROS critérios (se m > 1)
+          if (!is_removed(record) && match_record(record, criteria, m)) {
+            print_record_one_line(record);
+            found++;
+          }
+        }
+      }
+    } else {
+      // ========= BUSCA SEQUENCIAL =========
+      fseek(bin, HEADER_SIZE, SEEK_SET); // Volta para o primeiro registro
+      
+      while (read_record_binary(bin, record)) {
+        if (!is_removed(record) && match_record(record, criteria, m)) {
+          print_record_one_line(record);
+          found++;
+        }
+      }
+    }
+
+    if (found == 0) {
+      printf("Registro inexistente.\n"); // Ocorre quando a busca retorna 0 registros
+    }
+
+    delete_record(&record);
+    free(criteria);
+    if (i < n - 1) printf("\n");
+  }
+  
+  delete_header(&header);
   fclose(bin);
 }
 
