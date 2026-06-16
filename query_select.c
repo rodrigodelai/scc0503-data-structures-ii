@@ -90,7 +90,23 @@ void select_where(char *bin_filename, int n) {
 
     for (int j = 0; j < m; j++) {
       scanf("%s", criteria[j].name);
-      scan_quote_string(criteria[j].value);
+
+      // Checa se o campo buscado é do tipo string
+      if (strcmp(criteria[j].name, "nomeEstacao") == 0 || 
+          strcmp(criteria[j].name, "nomeLinha") == 0) {
+          
+        scan_quote_string(criteria[j].value);
+        
+      } else {
+        // Se for um campo numérico, lemos com scanf normal (evita o bug do dígito único)
+        scanf("%s", criteria[j].value);
+        
+        // Se o usuário digitou NULO para um inteiro, convertemos para string vazia 
+        // para que a lógica do match_record funcione perfeitamente.
+        if (strcmp(criteria[j].value, "NULO") == 0) {
+          criteria[j].value[0] = '\0';
+        }
+      }
 
       // Verifica se a busca envolve a chave primária
       if (strcmp(criteria[j].name, "codEstacao") == 0) {
