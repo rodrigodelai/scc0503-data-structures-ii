@@ -6,6 +6,7 @@
 */
 
 #include "queries.h"
+#include "index.h"
 
 int main() {
 	int queryOption = read_integer();
