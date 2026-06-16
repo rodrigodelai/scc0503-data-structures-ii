@@ -57,4 +57,13 @@ void select_where_indexed(char *bin_filename, char *index_filename, int num_sear
  * @param num_removals Número de remoções a serem realizadas.
  */
 void delete_records(char *bin_filename, char *index_filename, int num_removals);
+
+/**
+ * [Funcionalidade 8] Insere novos registros reaproveitando espaços removidos.
+ * @param bin_filename Nome do arquivo de dados.
+ * @param index_filename Nome do arquivo de índice primário.
+ * @param num_inserts Número de inserções a serem realizadas.
+ */
+void insert_records(char *bin_filename, char *index_filename, int num_inserts);
+
 #endif // QUERIES_H

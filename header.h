@@ -64,5 +64,6 @@ void print_header(Header *header);
 void delete_header(Header **header);
 int get_header_top_rrn(Header *header);
 void set_header_top_rrn(Header *header, int top_rrn);
-
+int get_header_next_rrn(Header *header);
+void set_header_next_rrn(Header *header, int next_rrn);
 #endif

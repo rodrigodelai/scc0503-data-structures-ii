@@ -47,6 +47,13 @@ void print_record(Record *record);
 void print_record_one_line(Record *record);
 void delete_record(Record **record);
 
+/**
+ * Lê um registro a partir da entrada padrão (terminal) conforme a especificação.
+ * @param record Ponteiro para o registro a ser preenchido.
+ */
+void read_record_terminal(Record *record);
+
+
 // Getters
 boolean is_removed(Record *record);
 int get_station_code(Record *record);

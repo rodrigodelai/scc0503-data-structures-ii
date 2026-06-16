@@ -39,3 +39,6 @@ void remove_from_index(IndexEntry *entries, int *num_entries, int target_cod);
 
 // Regrava o vetor de índices de volta no arquivo
 void rewrite_index(char *index_filename, IndexEntry *entries, int num_entries);
+
+// Adiciona uma nova entrada ao vetor de índices em memória e o reordena
+void add_to_index(IndexEntry **entries, int *num_entries, int cod, int rrn);

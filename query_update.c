@@ -114,3 +114,83 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
     binario_na_tela(bin_filename);
     binario_na_tela(index_filename);
 }
+
+void insert_records(char *bin_filename, char *index_filename, int n) {
+    // "r+b" permite ler e escrever sem apagar o arquivo
+    FILE *bin = fopen(bin_filename, "r+b");
+    if (!bin) {
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+
+    Header *header = new_header();
+    read_header_binary(bin, header);
+    if (get_header_status(header) == '0') {
+        printf("Falha no processamento do arquivo.\n");
+        delete_header(&header);
+        fclose(bin);
+        return;
+    }
+    
+    update_header_status_binary(bin, '0'); // Status inconsistente durante a escrita
+
+    // Carrega o índice para a RAM
+    int num_entries = 0;
+    IndexEntry *index_entries = load_index(index_filename, &num_entries);
+
+    for (int i = 0; i < n; i++) {
+        Record *new_rec = new_record();
+        read_record_terminal(new_rec); // Lê os dados do novo registro da tela
+
+        int target_rrn = get_header_top_rrn(header);
+        
+        if (target_rrn != -1) {
+            // ========= REAPROVEITAMENTO DE ESPAÇO =========
+            fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
+            
+            // Lê o RRN do próximo buraco para atualizar o topo da pilha no cabeçalho
+            char rem;
+            int next_rem;
+            fread(&rem, sizeof(char), 1, bin);
+            fread(&next_rem, sizeof(int), 1, bin);
+            
+            set_header_top_rrn(header, next_rem);
+            
+            // Volta o ponteiro para o começo do espaço do registro para sobrescrever
+            fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
+            
+        } else {
+            // ========= INSERÇÃO NO FINAL DO ARQUIVO =========
+            target_rrn = get_header_next_rrn(header);
+            fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
+            
+            // Como usamos o final do arquivo, o next_rrn do arquivo cresce
+            set_header_next_rrn(header, target_rrn + 1);
+        }
+
+        // Escreve o registro (a sua função write_record_binary já preenche a sobra com lixo '$')
+        write_record_binary(bin, new_rec);
+        
+        // Adiciona a nova chave ao índice em RAM
+        add_to_index(&index_entries, &num_entries, get_station_code(new_rec), target_rrn);
+        
+        delete_record(&new_rec);
+    }
+
+    // Grava o cabeçalho finalizado no arquivo e fecha status
+    write_header_binary(bin, header);
+    update_header_status_binary(bin, '1');
+
+    // Regrava o arquivo de índice ordenado
+    if (index_entries) {
+        rewrite_index(index_filename, index_entries, num_entries);
+        free(index_entries);
+    }
+
+    delete_header(&header);
+    fclose(bin);
+
+    // Saída exigida
+    binario_na_tela(bin_filename);
+    binario_na_tela(index_filename);
+}

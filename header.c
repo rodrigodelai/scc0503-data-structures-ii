@@ -256,3 +256,12 @@ int get_header_top_rrn(Header *header) {
 void set_header_top_rrn(Header *header, int top_rrn) {
     if (header) header->top_rrn = top_rrn;
 }
+
+int get_header_next_rrn(Header *header) {
+    if (!header) return -1;
+    return header->next_rrn;
+}
+
+void set_header_next_rrn(Header *header, int next_rrn) {
+    if (header) header->next_rrn = next_rrn;
+}

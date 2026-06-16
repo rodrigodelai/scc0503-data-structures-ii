@@ -211,6 +211,50 @@ void delete_record(Record **record) {
   *record = NULL; // protecao contra dangling pointer
 }
 
+void read_record_terminal(Record *record) {
+    char buffer[100];
+
+    // 1. codEstacao (int)
+    scanf("%s", buffer);
+    record->station_code = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // 2. nomeEstacao (string delimitada por aspas ou NULO)
+    scan_quote_string(buffer);
+    record->station_name_size = strlen(buffer);
+    free(record->station_name);
+    record->station_name = record->station_name_size > 0 ? strdup(buffer) : NULL;
+
+    // 3. codLinha (int)
+    scanf("%s", buffer);
+    record->line_code = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // 4. nomeLinha (string)
+    scan_quote_string(buffer);
+    record->line_name_size = strlen(buffer);
+    free(record->line_name);
+    record->line_name = record->line_name_size > 0 ? strdup(buffer) : NULL;
+
+    // 5. codProxEstacao (int)
+    scanf("%s", buffer);
+    record->next_station_code = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // 6. distProxEstacao (int)
+    scanf("%s", buffer);
+    record->next_station_distance = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // 7. codLinhaIntegra (int)
+    scanf("%s", buffer);
+    record->integration_line_code = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // 8. codEstIntegra (int)
+    scanf("%s", buffer);
+    record->integration_station_code = (strcmp(buffer, "NULO") == 0) ? -1 : atoi(buffer);
+
+    // Campos de controle padrão de um novo registro
+    record->removed = '0';
+    record->next_removed_rrn = -1;
+}
+
 // Getters
 boolean is_removed(Record *record)               { return record->removed == '1'; }
 int get_station_code(Record *record)             { return record->station_code; }

@@ -188,3 +188,16 @@ void rewrite_index(char *index_filename, IndexEntry *entries, int num_entries) {
     fwrite(&status, sizeof(char), 1, idx);
     fclose(idx);
 }
+
+void add_to_index(IndexEntry **entries, int *num_entries, int cod, int rrn) {
+    // Aumenta o tamanho do vetor em 1 posição (realloc funciona como malloc se *entries for NULL)
+    *entries = realloc(*entries, (*num_entries + 1) * sizeof(IndexEntry));
+    
+    // Adiciona o novo par no final
+    (*entries)[*num_entries].codEstacao = cod;
+    (*entries)[*num_entries].rrn = rrn;
+    (*num_entries)++;
+    
+    // Usa a mesma função de comparação para manter o vetor ordenado
+    qsort(*entries, *num_entries, sizeof(IndexEntry), compare_index);
+}

@@ -61,6 +61,15 @@ int main() {
             // Libera a memória da string alocada para o nome do índice
             delete_string(&index_filename_7);
             break;
+		case 8:
+            bin_filename = read_string();
+            char *index_filename_8 = read_string();
+            int num_inserts = read_integer();
+            
+            insert_records(bin_filename, index_filename_8, num_inserts);
+            
+            delete_string(&index_filename_8);
+            break;
 	}
 
 	return 0;
