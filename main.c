@@ -34,6 +34,12 @@ int main() {
 			rrn = read_integer();
 			select_by_rrn(bin_filename, rrn);
 			break;
+		case 5:
+    		bin_filename = read_string();
+   			char *index_filename = read_string();
+    		create_index(bin_filename, index_filename);
+   			delete_string(&index_filename); // liberar a memória da string
+    		break;
 		default:
 			printf("Invalid query option\n");
 			break;
