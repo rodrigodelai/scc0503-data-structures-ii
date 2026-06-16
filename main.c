@@ -1,8 +1,8 @@
 
 /*  Disciplina: SCC0503 – Algoritmos e Estruturas de Dados II
-		Alunos: Rodrigo Borges Delai e Miguel Lima
-		Nº USP: 11849074 e 13830720 (respectivamente)
-		Trabalho 1: Sistema de Gerenciamento de Arquivo de Dados
+		Aluno: Miguel Lima
+		Nº USP: 13830720
+		Trabalho Prático 1
 */
 
 #include "queries.h"
@@ -46,7 +46,7 @@ int main() {
 			break;
 		case 6:
             bin_filename = read_string();
-            char *index_filename_6 = read_string(); // Nome diferente para evitar conflito de escopo dependendo da compilação
+            char *index_filename_6 = read_string(); // Nome diferente para evitar confusão com o case 5
             int num_searches = read_integer();
             select_where_indexed(bin_filename, index_filename_6, num_searches);
             delete_string(&index_filename_6);
@@ -57,7 +57,7 @@ int main() {
             char *index_filename_7 = read_string();
             int num_removals = read_integer();
             
-            // Chama a função de deleção
+            // Chama a função delete_records para realizar as remoções e atualizar o índice
             delete_records(bin_filename, index_filename_7, num_removals);
             
             // Libera a memória da string alocada para o nome do índice

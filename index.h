@@ -29,7 +29,6 @@ void create_index(char *bin_filename, char *index_filename);
  * @return O RRN correspondente, ou -1 se não for encontrado.
  */
 int search_index(char *index_filename, int target_cod);
-#endif // INDEX_H
 
 // Carrega o arquivo de índice para a RAM e retorna o vetor e o número de elementos
 IndexEntry* load_index(char *index_filename, int *num_entries);
@@ -42,3 +41,5 @@ void rewrite_index(char *index_filename, IndexEntry *entries, int num_entries);
 
 // Adiciona uma nova entrada ao vetor de índices em memória e o reordena
 void add_to_index(IndexEntry **entries, int *num_entries, int cod, int rrn);
+
+#endif // INDEX_H
