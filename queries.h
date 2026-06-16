@@ -66,4 +66,12 @@ void delete_records(char *bin_filename, char *index_filename, int num_removals);
  */
 void insert_records(char *bin_filename, char *index_filename, int num_inserts);
 
+/**
+ * [Funcionalidade 9] Atualiza registros no arquivo de dados.
+ * @param bin_filename Nome do arquivo de dados.
+ * @param index_filename Nome do arquivo de índice primário.
+ * @param num_updates Número de atualizações a serem realizadas.
+ */
+void update_records(char *bin_filename, char *index_filename, int num_updates);
+
 #endif // QUERIES_H

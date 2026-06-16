@@ -67,4 +67,14 @@ int get_next_station_distance(Record *record);
 int get_integration_line_code(Record *record);
 int get_integration_station_code(Record *record);
 
+// Setters
+void set_station_code(Record *record, int val);
+void set_station_name(Record *record, char *str);
+void set_line_code(Record *record, int val);
+void set_line_name(Record *record, char *str);
+void set_next_station_code(Record *record, int val);
+void set_next_station_distance(Record *record, int val);
+void set_integration_line_code(Record *record, int val);
+void set_integration_station_code(Record *record, int val);
+
 #endif

@@ -267,3 +267,35 @@ int get_next_station_code(Record *record)        { return record->next_station_c
 int get_next_station_distance(Record *record)    { return record->next_station_distance; }
 int get_integration_line_code(Record *record)    { return record->integration_line_code; }
 int get_integration_station_code(Record *record) { return record->integration_station_code; }
+
+// Setters
+void set_station_code(Record *record, int val) { record->station_code = val; }
+
+void set_station_name(Record *record, char *str) {
+  free(record->station_name); // Libera o nome antigo, se houver
+  if (str && strlen(str) > 0) {
+    record->station_name_size = strlen(str);
+    record->station_name = strdup(str);
+  } else {
+    record->station_name_size = 0;
+    record->station_name = NULL;
+  }
+}
+
+void set_line_code(Record *record, int val) { record->line_code = val; }
+
+void set_line_name(Record *record, char *str) {
+  free(record->line_name); // Libera o nome antigo, se houver
+  if (str && strlen(str) > 0) {
+    record->line_name_size = strlen(str);
+    record->line_name = strdup(str);
+  } else {
+    record->line_name_size = 0;
+    record->line_name = NULL;
+  }
+}
+
+void set_next_station_code(Record *record, int val) { record->next_station_code = val; }
+void set_next_station_distance(Record *record, int val) { record->next_station_distance = val; }
+void set_integration_line_code(Record *record, int val) { record->integration_line_code = val; }
+void set_integration_station_code(Record *record, int val) { record->integration_station_code = val; }

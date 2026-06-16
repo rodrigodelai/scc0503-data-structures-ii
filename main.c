@@ -70,6 +70,15 @@ int main() {
             
             delete_string(&index_filename_8);
             break;
+		case 9:
+            bin_filename = read_string();
+            char *index_filename_9 = read_string();
+            int num_updates = read_integer();
+            
+            update_records(bin_filename, index_filename_9, num_updates);
+            
+            delete_string(&index_filename_9);
+            break;
 	}
 
 	return 0;
