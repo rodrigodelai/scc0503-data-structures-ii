@@ -1,5 +1,5 @@
 MAIN = main.c
-UTIL = query_create.c query_select.c header.c record.c utils.c
+UTIL = query_create.c query_select.c header.c record.c utils.c index.c
 BINARY = executable
 
 all:
