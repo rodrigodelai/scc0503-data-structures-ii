@@ -1,5 +1,4 @@
-3 estacoes.bin 4
-1 distProxEstacao 2000
-2 nomeLinha "Prata" codLinhaIntegra 2
-2 nomeLinha "Azul" codEstIntegra NULO
-2 codEstIntegra 197 codLinhaIntegra NULO
+7 estacoes_removidos.bin removidos_indice.bin 3
+2 nomeLinha "Azul" codEstIntegra 2
+3 nomeLinha "Rubi" codLinha 7 codEstacao 98
+1 distProxEstacao 1770

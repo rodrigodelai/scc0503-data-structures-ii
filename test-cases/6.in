@@ -1,1 +1,16 @@
-4 estacoes.bin 47
+8 estacoes.bin estacoes_indice.bin 15
+220 "Oscar Freire" 16 "Violeta" 221 1200 4 59
+221 "Nove de Julho" 16 "Violeta" 222 1400 NULO NULO
+222 "Jardim Paulista" 16 "Violeta" 223 1100 NULO NULO
+223 "Parque Ibirapuera" 16 "Violeta" 224 1700 NULO NULO
+224 "Dante Pazzanese" 16 "Violeta" 225 1300 NULO NULO
+225 "Ana Rosa" 16 "Violeta" 226 1400 1 16
+226 "Aclimacao" 16 "Violeta" 227 1100 NULO NULO
+227 "Basilio de Cunha" 16 "Violeta" 228 1500 NULO NULO
+228 "Parque Independencia" 16 "Violeta" 230 1300 NULO NULO
+229 "Sao Carlos" 16 "Violeta" 229 1700 NULO NULO
+230 "Paes de Barros" 16 "Violeta" 231 1200 NULO NULO
+231 "Alvaro Ramos" 16 "Violeta" 232 1000 NULO NULO
+232 "Regente Feijo" 16 "Violeta" 233 1400 NULO NULO
+233 "Analia Franco" 16 "Violeta" 234 1500 NULO NULO
+234 "Abel Ferreira" 16 "Violeta" NULO NULO NULO NULO

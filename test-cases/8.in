@@ -1,4 +1,3 @@
-3 estacoes_removidos.bin 3
-1 codEstacao 162
-2 nomeLinha "Diamante" distProxEstacao 1080
-1 codProxEstacao NULO
+9 estacoes.bin estacoes_indice.bin 1
+1 codEstacao 33
+1 codEstacao 333
