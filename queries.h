@@ -14,6 +14,10 @@ typedef struct {
   char value[100];
 } Criterion;
 
+/**
+ * Verifica se um registro atende aos critérios de busca.
+ */
+boolean match_record(Record *r, Criterion *criteria, int m);
 
 /**
  * Cria um arquivo binario a partir de um arquivo csv.

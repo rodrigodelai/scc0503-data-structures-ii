@@ -1,16 +1,6 @@
 #include "queries.h"
 #include "index.h"
 
-// Declaracoes de estruturas internas ─────────────────────────────────────────
-
-/**
- * Verifica se um registro atende aos critérios de busca.
- * @param r Ponteiro para o registro a ser verificado.
- * @param criteria Ponteiro para os critérios de busca.
- * @param m Numero de critérios de busca.
- * @return true se o registro atende aos critérios, false caso contrário.
- */
-static boolean match_record(Record *r, Criterion *criteria, int m);
 
 // Implementacao de funcoes expostas no cabecalho ─────────────────────────────
 
@@ -261,7 +251,7 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
 
 // Implementacao de funcoes internas ──────────────────────────────────────────
 
-static boolean match_record(Record *r, Criterion *criteria, int m) {
+boolean match_record(Record *r, Criterion *criteria, int m) {
   for (int i = 0; i < m; i++) {
     char *name = criteria[i].name;
     char *val = criteria[i].value;
