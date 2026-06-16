@@ -4,14 +4,6 @@
 // Declaracoes de estruturas internas ─────────────────────────────────────────
 
 /**
- * Estrutura para armazenar critérios de busca.
- */
-typedef struct {
-  char name[50];
-  char value[100];
-} Criterion;
-
-/**
  * Verifica se um registro atende aos critérios de busca.
  * @param r Ponteiro para o registro a ser verificado.
  * @param criteria Ponteiro para os critérios de busca.

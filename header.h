@@ -62,5 +62,7 @@ void print_header(Header *header);
  * @param header Ponteiro para o ponteiro do header.
  */
 void delete_header(Header **header);
+int get_header_top_rrn(Header *header);
+void set_header_top_rrn(Header *header, int top_rrn);
 
 #endif

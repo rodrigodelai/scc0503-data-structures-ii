@@ -128,3 +128,63 @@ int search_index(char *index_filename, int target_cod) {
     fclose(idx);
     return rrn_found;
 }
+
+IndexEntry* load_index(char *index_filename, int *num_entries) {
+    FILE *idx = fopen(index_filename, "rb");
+    if (!idx) {
+        *num_entries = 0;
+        return NULL;
+    }
+
+    fseek(idx, 0, SEEK_END);
+    long size = ftell(idx);
+    *num_entries = (size - 1) / 8; // Tira 1 byte do status, divide por 8 bytes cada registro
+
+    if (*num_entries <= 0) {
+        fclose(idx);
+        return NULL;
+    }
+
+    IndexEntry *entries = malloc(*num_entries * sizeof(IndexEntry));
+    fseek(idx, 1, SEEK_SET);
+    
+    // Lendo campo a campo para evitar problemas de padding do struct no compilador
+    for (int i = 0; i < *num_entries; i++) {
+        fread(&entries[i].codEstacao, sizeof(int), 1, idx);
+        fread(&entries[i].rrn, sizeof(int), 1, idx);
+    }
+
+    fclose(idx);
+    return entries;
+}
+
+void remove_from_index(IndexEntry *entries, int *num_entries, int target_cod) {
+    for (int i = 0; i < *num_entries; i++) {
+        if (entries[i].codEstacao == target_cod) {
+            // Encontrou! Agora desloca todo mundo da direita para a esquerda
+            for (int j = i; j < *num_entries - 1; j++) {
+                entries[j] = entries[j + 1];
+            }
+            (*num_entries)--; // Diminui o tamanho do vetor
+            break;
+        }
+    }
+}
+
+void rewrite_index(char *index_filename, IndexEntry *entries, int num_entries) {
+    FILE *idx = fopen(index_filename, "wb"); // 'wb' recria o arquivo limpo
+    if (!idx) return;
+
+    char status = '0';
+    fwrite(&status, sizeof(char), 1, idx);
+
+    for (int i = 0; i < num_entries; i++) {
+        fwrite(&entries[i].codEstacao, sizeof(int), 1, idx);
+        fwrite(&entries[i].rrn, sizeof(int), 1, idx);
+    }
+
+    status = '1';
+    fseek(idx, 0, SEEK_SET);
+    fwrite(&status, sizeof(char), 1, idx);
+    fclose(idx);
+}

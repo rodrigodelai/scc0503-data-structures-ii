@@ -5,6 +5,16 @@
 #include "record.h"
 #include "utils.h"
 
+
+/**
+ * Estrutura para armazenar critérios de busca.
+ */
+typedef struct {
+  char name[50];
+  char value[100];
+} Criterion;
+
+
 /**
  * Cria um arquivo binario a partir de um arquivo csv.
  * @param csv_filename Nome ou caminho do arquivo csv.
@@ -40,4 +50,11 @@ void select_by_rrn(char *bin_filename, int rrn);
  */
 void select_where_indexed(char *bin_filename, char *index_filename, int num_searches);
 
+/**
+ * [Funcionalidade 7] Realiza a remoção lógica de registros.
+ * @param bin_filename Nome do arquivo de dados.
+ * @param index_filename Nome do arquivo de índice primário.
+ * @param num_removals Número de remoções a serem realizadas.
+ */
+void delete_records(char *bin_filename, char *index_filename, int num_removals);
 #endif // QUERIES_H

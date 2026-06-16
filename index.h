@@ -30,3 +30,12 @@ void create_index(char *bin_filename, char *index_filename);
  */
 int search_index(char *index_filename, int target_cod);
 #endif // INDEX_H
+
+// Carrega o arquivo de índice para a RAM e retorna o vetor e o número de elementos
+IndexEntry* load_index(char *index_filename, int *num_entries);
+
+// Remove uma estação do vetor de índices em RAM
+void remove_from_index(IndexEntry *entries, int *num_entries, int target_cod);
+
+// Regrava o vetor de índices de volta no arquivo
+void rewrite_index(char *index_filename, IndexEntry *entries, int num_entries);

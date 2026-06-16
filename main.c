@@ -50,6 +50,17 @@ int main() {
             select_where_indexed(bin_filename, index_filename_6, num_searches);
             delete_string(&index_filename_6);
             break;
+		case 7:
+            bin_filename = read_string();
+            char *index_filename_7 = read_string();
+            int num_removals = read_integer();
+            
+            // Chama a função de deleção
+            delete_records(bin_filename, index_filename_7, num_removals);
+            
+            // Libera a memória da string alocada para o nome do índice
+            delete_string(&index_filename_7);
+            break;
 	}
 
 	return 0;

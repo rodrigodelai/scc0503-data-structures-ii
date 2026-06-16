@@ -248,3 +248,11 @@ static void delete_pairs_array(PairsArray **pairs) {
   free(*pairs); // libera memoria da struct
   *pairs = NULL; // evita dangling pointer
 }
+int get_header_top_rrn(Header *header) {
+    if (!header) return -1;
+    return header->top_rrn;
+}
+
+void set_header_top_rrn(Header *header, int top_rrn) {
+    if (header) header->top_rrn = top_rrn;
+}
