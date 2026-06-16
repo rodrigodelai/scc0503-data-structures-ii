@@ -39,6 +39,7 @@ int main() {
    			char *index_filename = read_string();
     		create_index(bin_filename, index_filename);
    			delete_string(&index_filename); // liberar a memória da string
+   			delete_string(&bin_filename);   // liberar a memória do nome do arquivo de dados
     		break;
 		default:
 			printf("Invalid query option\n");
@@ -49,6 +50,7 @@ int main() {
             int num_searches = read_integer();
             select_where_indexed(bin_filename, index_filename_6, num_searches);
             delete_string(&index_filename_6);
+            delete_string(&bin_filename);
             break;
 		case 7:
             bin_filename = read_string();
@@ -60,6 +62,7 @@ int main() {
             
             // Libera a memória da string alocada para o nome do índice
             delete_string(&index_filename_7);
+            delete_string(&bin_filename);
             break;
 		case 8:
             bin_filename = read_string();
@@ -67,8 +70,9 @@ int main() {
             int num_inserts = read_integer();
             
             insert_records(bin_filename, index_filename_8, num_inserts);
-            
+
             delete_string(&index_filename_8);
+            delete_string(&bin_filename);
             break;
 		case 9:
             bin_filename = read_string();
@@ -76,8 +80,9 @@ int main() {
             int num_updates = read_integer();
             
             update_records(bin_filename, index_filename_9, num_updates);
-            
+
             delete_string(&index_filename_9);
+            delete_string(&bin_filename);
             break;
 	}
 

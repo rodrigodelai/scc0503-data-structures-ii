@@ -1,4 +1,5 @@
 executable
+*.exe
 *.bin
 *.in
 *.out

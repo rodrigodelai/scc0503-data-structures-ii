@@ -265,3 +265,21 @@ int get_header_next_rrn(Header *header) {
 void set_header_next_rrn(Header *header, int next_rrn) {
     if (header) header->next_rrn = next_rrn;
 }
+
+int get_header_stations(Header *header) {
+    if (!header) return 0;
+    return header->stations;
+}
+
+void set_header_stations(Header *header, int stations) {
+    if (header) header->stations = stations;
+}
+
+int get_header_pairs(Header *header) {
+    if (!header) return 0;
+    return header->pairs;
+}
+
+void set_header_pairs(Header *header, int pairs) {
+    if (header) header->pairs = pairs;
+}

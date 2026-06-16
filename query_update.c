@@ -1,6 +1,56 @@
 #include "queries.h"
 #include "index.h"
 
+// Recalcula os contadores de controle do cabeçalho (estações únicas e pares
+// válidos) varrendo os registros ativos do arquivo de dados.
+// - stations: quantidade de nomes de estação distintos entre registros ativos.
+// - pairs: quantidade de registros ativos cujo par (codEstacao, codProxEstacao)
+//   é válido, ou seja, ambos os códigos estão no intervalo [0, 1000) (não nulos).
+static void compute_active_counters(FILE *bin, int *out_stations, int *out_pairs) {
+    fseek(bin, HEADER_SIZE, SEEK_SET);
+    Record *rec = new_record();
+    char **names = NULL;
+    int n_names = 0;
+    int pairs = 0;
+
+    while (read_record_binary(bin, rec)) {
+        if (is_removed(rec)) continue;
+
+        int cod = get_station_code(rec);
+        int nsc = get_next_station_code(rec);
+        if (cod >= 0 && cod < 1000 && nsc >= 0 && nsc < 1000) pairs++;
+
+        char *name = get_station_name(rec);
+        if (name) {
+            boolean found = false;
+            for (int k = 0; k < n_names; k++)
+                if (strcmp(names[k], name) == 0) { found = true; break; }
+            if (!found) {
+                names = realloc(names, (n_names + 1) * sizeof(char *));
+                names[n_names++] = strdup(name);
+            }
+        }
+    }
+
+    for (int k = 0; k < n_names; k++) free(names[k]);
+    free(names);
+    delete_record(&rec);
+
+    *out_stations = n_names;
+    *out_pairs = pairs;
+}
+
+// Reescreve os contadores de controle do cabeçalho preservando o "drift"
+// (diferença entre o valor armazenado e o recalculado no momento da abertura).
+// Isso reproduz fielmente a manutenção incremental dos contadores, inclusive
+// quando o arquivo de entrada já possui um contador inconsistente com os dados.
+static void fix_header_counters(FILE *bin, Header *header, int drift_stations, int drift_pairs) {
+    int rec_st, rec_pr;
+    compute_active_counters(bin, &rec_st, &rec_pr);
+    set_header_stations(header, rec_st + drift_stations);
+    set_header_pairs(header, rec_pr + drift_pairs);
+}
+
 // Função auxiliar interna para realizar a remoção lógica na posição do RRN apontado
 static void do_logical_removal(FILE *bin, Header *header, int rrn) {
     // 1. Vai até a posição exata do registro
@@ -33,6 +83,15 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
         delete_header(&header);
         fclose(bin);
         return;
+    }
+
+    // Calcula o drift dos contadores antes de qualquer modificação
+    int drift_st, drift_pr;
+    {
+        int rec_st, rec_pr;
+        compute_active_counters(bin, &rec_st, &rec_pr);
+        drift_st = get_header_stations(header) - rec_st;
+        drift_pr = get_header_pairs(header) - rec_pr;
     }
 
     update_header_status_binary(bin, '0'); // Marca como inconsistente durante as operações
@@ -97,6 +156,9 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
         free(criteria);
     }
 
+    // Atualiza os contadores de controle do cabeçalho frente às remoções
+    fix_header_counters(bin, header, drift_st, drift_pr);
+
     // Grava o cabeçalho finalizado no arquivo
     write_header_binary(bin, header);
     update_header_status_binary(bin, '1'); // Volta a ficar consistente
@@ -132,6 +194,15 @@ void insert_records(char *bin_filename, char *index_filename, int n) {
         return;
     }
     
+    // Calcula o drift dos contadores antes de qualquer modificação
+    int drift_st, drift_pr;
+    {
+        int rec_st, rec_pr;
+        compute_active_counters(bin, &rec_st, &rec_pr);
+        drift_st = get_header_stations(header) - rec_st;
+        drift_pr = get_header_pairs(header) - rec_pr;
+    }
+
     update_header_status_binary(bin, '0'); // Status inconsistente durante a escrita
 
     // Carrega o índice para a RAM
@@ -176,6 +247,9 @@ void insert_records(char *bin_filename, char *index_filename, int n) {
         
         delete_record(&new_rec);
     }
+
+    // Atualiza os contadores de controle do cabeçalho frente às inserções
+    fix_header_counters(bin, header, drift_st, drift_pr);
 
     // Grava o cabeçalho finalizado no arquivo e fecha status
     write_header_binary(bin, header);
@@ -243,6 +317,15 @@ void update_records(char *bin_filename, char *index_filename, int n) {
         return;
     }
     
+    // Calcula o drift dos contadores antes de qualquer modificação
+    int drift_st, drift_pr;
+    {
+        int rec_st, rec_pr;
+        compute_active_counters(bin, &rec_st, &rec_pr);
+        drift_st = get_header_stations(header) - rec_st;
+        drift_pr = get_header_pairs(header) - rec_pr;
+    }
+
     update_header_status_binary(bin, '0'); // Status inconsistente
 
     int num_entries = 0;
@@ -331,6 +414,9 @@ void update_records(char *bin_filename, char *index_filename, int n) {
         free(search_criteria);
         free(update_criteria);
     }
+
+    // Atualiza os contadores de controle do cabeçalho frente às atualizações
+    fix_header_counters(bin, header, drift_st, drift_pr);
 
     // Grava cabeçalho final
     write_header_binary(bin, header);
