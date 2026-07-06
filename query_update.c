@@ -124,13 +124,13 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
 
         if (target_codEstacao != -1) {
             // ========= BUSCA INDEXADA =========
-            int target_rrn = search_index(index_filename, target_codEstacao); // Pode usar a que já fizemos
+            int target_rrn = search_index(index_filename, target_codEstacao);               // Busca o RRN usando o índice
             if (target_rrn != -1) {
-                fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
-                if (read_record_binary(bin, record)) {
-                    if (!is_removed(record) && match_record(record, criteria, m)) {
-                        do_logical_removal(bin, header, target_rrn);
-                        remove_from_index(index_entries, &num_entries, target_codEstacao);
+                fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);              // Vai direto para o registro usando o RRN
+                if (read_record_binary(bin, record)) {                                      // Lê o registro
+                    if (!is_removed(record) && match_record(record, criteria, m)) {         // Verifica se o registro atende aos critérios (pode ser mais de um critério)
+                        do_logical_removal(bin, header, target_rrn);                        // Realiza a remoção lógica do registro
+                        remove_from_index(index_entries, &num_entries, target_codEstacao);  // Remove a estação do índice em RAM
                     }
                 }
             }
@@ -146,7 +146,7 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
                     remove_from_index(index_entries, &num_entries, cod);
 
                     // Após o fseek do do_logical_removal, o ponteiro perdeu a posição de leitura.
-                    // Precisamos reposicioná-lo para continuar lendo o próximo registro!
+                    // Precisamos reposicioná-lo para continuar lendo o próximo registro
                     fseek(bin, HEADER_SIZE + (current_rrn + 1) * RECORD_SIZE, SEEK_SET);
                 }
                 current_rrn++;
@@ -239,7 +239,7 @@ void insert_records(char *bin_filename, char *index_filename, int n) {
             set_header_next_rrn(header, target_rrn + 1);
         }
 
-        // Escreve o registro (a sua função write_record_binary já preenche a sobra com lixo '$')
+        // Escreve o registro (a função write_record_binary já preenche a sobra com '$')
         write_record_binary(bin, new_rec);
         
         // Adiciona a nova chave ao índice em RAM

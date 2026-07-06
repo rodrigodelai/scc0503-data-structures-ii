@@ -229,14 +229,14 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
     Record *record = new_record();
     
     if (target_codEstacao != -1) {
-      // ========= BUSCA INDEXADA (Otimizada) =========
+      // ========= BUSCA INDEXADA =========
       int target_rrn = search_index(index_filename, target_codEstacao);
       
       if (target_rrn != -1) {
         fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET); // Pula direto pro registro
         
         if (read_record_binary(bin, record)) {
-          // Mesmo achando no índice, precisamos verificar se não foi removido e se atende a OUTROS critérios (se m > 1)
+          // Mesmo achando no índice, verifica se não foi removido e se atende a outros critérios (se m > 1)
           if (!is_removed(record) && match_record(record, criteria, m)) {
             print_record_one_line(record);
             found++;
