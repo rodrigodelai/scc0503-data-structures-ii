@@ -167,7 +167,26 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
   
   Header *header = new_header();
   read_header_binary(bin, header);
-  if (get_header_status(header) == '0') { // Status inconsistente
+  if (get_header_status(header) == '0') { // Status inconsistente dos dados
+    printf("Falha no processamento do arquivo.\n");
+    delete_header(&header);
+    fclose(bin);
+    return;
+  }
+
+  // --- NOVA VERIFICAÇÃO: ARQUIVO DE ÍNDICES ---
+  FILE *idx = fopen(index_filename, "rb");
+  if (!idx) {
+    printf("Falha no processamento do arquivo.\n");
+    delete_header(&header);
+    fclose(bin);
+    return;
+  }
+  char idx_status;
+  fread(&idx_status, sizeof(char), 1, idx);
+  fclose(idx);
+  
+  if (idx_status == '0') { // Status inconsistente do índice
     printf("Falha no processamento do arquivo.\n");
     delete_header(&header);
     fclose(bin);
