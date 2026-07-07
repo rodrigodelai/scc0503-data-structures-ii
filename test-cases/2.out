@@ -1,1 +1,6 @@
-338.040000
+Clinicas, Consolacao, 1063, Verde
+Consolacao, Japao-Liberdade, 0, Integração, Paulista, 982, Verde
+Japao-Liberdade, Consolacao, 0, Integração, Se, 544, Azul
+Paulista, Se, 0, Integração
+Pedro II, Japao-Liberdade, 900, Azul
+Se, Paulista, 0, Integração, Pedro II, 727, Azul

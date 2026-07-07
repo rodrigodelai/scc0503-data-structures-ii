@@ -1,3 +1,1 @@
-7 estacoes.bin estacoes_indice.bin 2
-1 nomeLinha "Azul"
-1 nomeEstacao "Luz"
+11 ciclos.bin ciclos_indice.bin nomeEstacao "Clinicas" nomeEstacao "Paulista"

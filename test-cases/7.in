@@ -1,12 +1,1 @@
-8 estacoes_removidos.bin removidos_indice.bin 11
-240 "Morumbi" 17 "Ouro" 221 1100 9 143
-241 "Chucri Zaidan" 17 "Ouro" 222 900 NULO NULO
-242 "Vila Cordeiro" 17 "Ouro" 223 1000 NULO NULO
-243 "Campo Belo" 17 "Ouro" 224 900 5 76
-244 "Vereador Jose Diniz" 17 "Ouro" 225 850 NULO NULO
-245 "Brooklin Paulista" 17 "Ouro" 226 1000 NULO NULO
-246 "Jardim Aeroporto" 17 "Ouro" 227 950 NULO NULO
-247 "Aeroporto Congonhas" 17 "Ouro" NULO NULO NULO NULO
-248 "Jardim Aeroporto" 17 "Ouro" 229 1200 NULO NULO
-249 "Washington Luis" 17 "Ouro" 230 700 NULO NULO
-250 "Patio Agua Espraiada" 17 "Ouro" NULO NULO NULO NULO
+11 estacoes_removidos.bin removidos_indice.bin nomeEstacao "Ana Rosa" nomeEstacao "Paraiso"

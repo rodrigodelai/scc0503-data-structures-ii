@@ -1,4 +1,1 @@
-6 estacoes.bin estacoes_indice.bin 3
-1 codEstacao 75
-2 nomeLinha "Azul" codEstacao 10
-2 codEstIntegra 197 codLinhaIntegra NULO
+10 estacoes_removidos.bin removidos_indice.bin

@@ -1,4 +1,1 @@
-7 estacoes_removidos.bin removidos_indice.bin 3
-2 nomeLinha "Azul" codEstIntegra 2
-3 nomeLinha "Rubi" codLinha 7 codEstacao 98
-1 distProxEstacao 1770
+11 estacoes_removidos.bin removidos_indice.bin nomeEstacao "Sao Bento" nomeEstacao "Bras"

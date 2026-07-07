@@ -7,6 +7,7 @@
 
 #include "queries.h"
 #include "index.h"
+#include "graph.h"
 
 int main() {
 	int queryOption = read_integer();
@@ -84,6 +85,62 @@ int main() {
             delete_string(&index_filename_9);
             delete_string(&bin_filename);
             break;
+		case 10: {
+            // [10] Grafo em listas de adjacencias. Le o arquivo de dados e o
+            // nome do arquivo de indice (consumido da entrada, nao utilizado).
+            bin_filename = read_string();
+            char *index_filename_10 = read_string();
+            graph_adjacency_list(bin_filename);
+            delete_string(&index_filename_10);
+            delete_string(&bin_filename);
+            break;
+        }
+		case 11: {
+            // [11] Caminho mais curto entre origem e destino. Le: arquivo de
+            // dados, arquivo de indice (ignorado), e os pares nomeCampo/valor
+            // de origem e destino (valores entre aspas).
+            bin_filename = read_string();
+            char *index_filename_11 = read_string();
+            char *field_origin = read_string();      // "nomeEstacao"
+            char origin_value[128];
+            scan_quote_string(origin_value);
+            char *field_dest = read_string();        // "nomeEstacao"
+            char dest_value[128];
+            scan_quote_string(dest_value);
+            graph_shortest_path(bin_filename, origin_value, dest_value);
+            delete_string(&field_origin);
+            delete_string(&field_dest);
+            delete_string(&index_filename_11);
+            delete_string(&bin_filename);
+            break;
+        }
+		case 12: {
+            // [12] Arvore geradora minima percorrida em profundidade a partir
+            // da estacao de origem informada.
+            bin_filename = read_string();
+            char *index_filename_12 = read_string();
+            char *field_origin = read_string();      // "nomeEstacao"
+            char origin_value[128];
+            scan_quote_string(origin_value);
+            graph_mst_dfs(bin_filename, origin_value);
+            delete_string(&field_origin);
+            delete_string(&index_filename_12);
+            delete_string(&bin_filename);
+            break;
+        }
+		case 13: {
+            // [13] Contagem de ciclos simples a partir da estacao de origem.
+            bin_filename = read_string();
+            char *index_filename_13 = read_string();
+            char *field_origin = read_string();      // "nomeEstacao"
+            char origin_value[128];
+            scan_quote_string(origin_value);
+            graph_count_cycles(bin_filename, origin_value);
+            delete_string(&field_origin);
+            delete_string(&index_filename_13);
+            delete_string(&bin_filename);
+            break;
+        }
 	}
 
 	return 0;
