@@ -69,8 +69,8 @@ static void do_logical_removal(FILE *bin, Header *header, int rrn) {
 }
 
 void delete_records(char *bin_filename, char *index_filename, int n) {
-    // MUITO IMPORTANTE: Abrir com "r+b" para poder ler E escrever no mesmo arquivo sem apagá-lo
-    FILE *bin = fopen(bin_filename, "r+b"); 
+    // Abrir com "rb+" para poder ler E escrever no mesmo arquivo sem apagá-lo
+    FILE *bin = fopen(bin_filename, "rb+"); 
     if (!bin) {
         printf("Falha no processamento do arquivo.\n");
         return;
@@ -100,6 +100,11 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
     int num_entries = 0;
     IndexEntry *index_entries = load_index(index_filename, &num_entries);
 
+    // Marca o índice como inconsistente ('0') em disco no início da
+    // funcionalidade, garantindo consistência caso ocorra uma falha durante a
+    // manipulação. Ao final, rewrite_index grava '1' de volta em disco.
+    set_index_status_binary(index_filename, '0');
+
     for (int i = 0; i < n; i++) {
         int m;
         scanf("%d", &m);
@@ -124,7 +129,7 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
 
         if (target_codEstacao != -1) {
             // ========= BUSCA INDEXADA =========
-            int target_rrn = search_index(index_filename, target_codEstacao);               // Busca o RRN usando o índice
+            int target_rrn = search_index_ram(index_entries, num_entries, target_codEstacao);               // Busca o RRN usando o índice
             if (target_rrn != -1) {
                 fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);              // Vai direto para o registro usando o RRN
                 if (read_record_binary(bin, record)) {                                      // Lê o registro
@@ -164,10 +169,11 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
     update_header_status_binary(bin, '1'); // Volta a ficar consistente
 
     // Regrava o índice atualizado
-    if (index_entries) {
-        rewrite_index(index_filename, index_entries, num_entries);
-        free(index_entries);
-    }
+    // ROTINA DE REESCRITA: percorre o vetor de índices em RAM e grava os
+    // registros correspondentes em disco. É sempre executada (mesmo com o
+    // índice vazio), pois reescreve o cabeçalho com status '1' (consistente).
+    rewrite_index(index_filename, index_entries, num_entries);
+    free(index_entries);
 
     delete_header(&header);
     fclose(bin);
@@ -178,8 +184,8 @@ void delete_records(char *bin_filename, char *index_filename, int n) {
 }
 
 void insert_records(char *bin_filename, char *index_filename, int n) {
-    // "r+b" permite ler e escrever sem apagar o arquivo
-    FILE *bin = fopen(bin_filename, "r+b");
+    // "rb+" permite ler e escrever sem apagar o arquivo
+    FILE *bin = fopen(bin_filename, "rb+");
     if (!bin) {
         printf("Falha no processamento do arquivo.\n");
         return;
@@ -208,6 +214,11 @@ void insert_records(char *bin_filename, char *index_filename, int n) {
     // Carrega o índice para a RAM
     int num_entries = 0;
     IndexEntry *index_entries = load_index(index_filename, &num_entries);
+
+    // Marca o índice como inconsistente ('0') em disco no início da
+    // funcionalidade, garantindo consistência caso ocorra uma falha durante a
+    // manipulação. Ao final, rewrite_index grava '1' de volta em disco.
+    set_index_status_binary(index_filename, '0');
 
     for (int i = 0; i < n; i++) {
         Record *new_rec = new_record();
@@ -256,10 +267,11 @@ void insert_records(char *bin_filename, char *index_filename, int n) {
     update_header_status_binary(bin, '1');
 
     // Regrava o arquivo de índice ordenado
-    if (index_entries) {
-        rewrite_index(index_filename, index_entries, num_entries);
-        free(index_entries);
-    }
+    // ROTINA DE REESCRITA: percorre o vetor de índices em RAM e grava os
+    // registros correspondentes em disco. É sempre executada (mesmo com o
+    // índice vazio), pois reescreve o cabeçalho com status '1' (consistente).
+    rewrite_index(index_filename, index_entries, num_entries);
+    free(index_entries);
 
     delete_header(&header);
     fclose(bin);
@@ -302,7 +314,7 @@ static void apply_updates(Record *r, Criterion *updates, int p, int *old_cod, in
 }
 
 void update_records(char *bin_filename, char *index_filename, int n) {
-    FILE *bin = fopen(bin_filename, "r+b");
+    FILE *bin = fopen(bin_filename, "rb+");
     if (!bin) {
         printf("Falha no processamento do arquivo.\n");
         return;
@@ -330,6 +342,11 @@ void update_records(char *bin_filename, char *index_filename, int n) {
 
     int num_entries = 0;
     IndexEntry *index_entries = load_index(index_filename, &num_entries);
+
+    // Marca o índice como inconsistente ('0') em disco no início da
+    // funcionalidade, garantindo consistência caso ocorra uma falha durante a
+    // manipulação. Ao final, rewrite_index grava '1' de volta em disco.
+    set_index_status_binary(index_filename, '0');
 
     for (int i = 0; i < n; i++) {
         // --- 1. LÊ CRITÉRIOS DE BUSCA (m) ---
@@ -368,7 +385,7 @@ void update_records(char *bin_filename, char *index_filename, int n) {
 
         if (target_codEstacao != -1) {
             // ========= BUSCA INDEXADA =========
-            int target_rrn = search_index(index_filename, target_codEstacao);
+            int target_rrn = search_index_ram(index_entries, num_entries, target_codEstacao);
             if (target_rrn != -1) {
                 fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
                 if (read_record_binary(bin, record)) {
@@ -423,10 +440,11 @@ void update_records(char *bin_filename, char *index_filename, int n) {
     update_header_status_binary(bin, '1');
 
     // Regrava índice atualizado
-    if (index_entries) {
-        rewrite_index(index_filename, index_entries, num_entries);
-        free(index_entries);
-    }
+    // ROTINA DE REESCRITA: percorre o vetor de índices em RAM e grava os
+    // registros correspondentes em disco. É sempre executada (mesmo com o
+    // índice vazio), pois reescreve o cabeçalho com status '1' (consistente).
+    rewrite_index(index_filename, index_entries, num_entries);
+    free(index_entries);
 
     delete_header(&header);
     fclose(bin);

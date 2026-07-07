@@ -85,48 +85,35 @@ void create_index(char *bin_filename, char *index_filename) {
     binario_na_tela(index_filename);
 }
 
-int search_index(char *index_filename, int target_cod) {
-    FILE *idx = fopen(index_filename, "rb");
-    if (!idx) return -1; // Arquivo não existe
-
-    char status;
-    fread(&status, sizeof(char), 1, idx);
-    if (status == '0') { // Arquivo inconsistente
-        fclose(idx);
-        return -1;
-    }
-
-    // Descobre a quantidade de registros no índice
-    fseek(idx, 0, SEEK_END);
-    long file_size = ftell(idx);
-    int num_records = (file_size - 1) / 8; // Tira 1 byte do status, cada registro tem 8 bytes
-
-    // Busca Binária diretamente no arquivo
-    int left = 0, right = num_records - 1;
-    int rrn_found = -1;
+int search_index_ram(IndexEntry *entries, int num_entries, int target_cod) {
+    // Busca binária no vetor que já está em RAM. Toda a manipulação do índice
+    // acontece em memória: nenhuma leitura de disco é feita aqui.
+    int left = 0, right = num_entries - 1;
 
     while (left <= right) {
         int mid = left + (right - left) / 2;
-        
-        // Pula o status (1 byte) + os registros anteriores (mid * 8 bytes)
-        fseek(idx, 1 + mid * 8, SEEK_SET); 
-        
-        int current_cod, current_rrn;
-        fread(&current_cod, sizeof(int), 1, idx);
-        fread(&current_rrn, sizeof(int), 1, idx);
 
-        if (current_cod == target_cod) {
-            rrn_found = current_rrn; // Achou!
-            break;
-        } else if (current_cod < target_cod) {
+        if (entries[mid].codEstacao == target_cod) {
+            return entries[mid].rrn; // Achou!
+        } else if (entries[mid].codEstacao < target_cod) {
             left = mid + 1;
         } else {
             right = mid - 1;
         }
     }
 
+    return -1; // Não encontrado
+}
+
+void set_index_status_binary(char *index_filename, char status) {
+    // Abre em "rb+" para modificar apenas o byte de status sem apagar o resto
+    // do arquivo (que ainda está em disco enquanto manipulamos a cópia em RAM).
+    FILE *idx = fopen(index_filename, "rb+");
+    if (!idx) return;
+
+    fseek(idx, 0, SEEK_SET);
+    fwrite(&status, sizeof(char), 1, idx);
     fclose(idx);
-    return rrn_found;
 }
 
 IndexEntry* load_index(char *index_filename, int *num_entries) {

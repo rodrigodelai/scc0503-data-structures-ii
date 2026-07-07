@@ -174,7 +174,7 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
     return;
   }
 
-  // --- NOVA VERIFICAÇÃO: ARQUIVO DE ÍNDICES ---
+  // --- VERIFICAÇÃO DO ARQUIVO DE ÍNDICE ---
   FILE *idx = fopen(index_filename, "rb");
   if (!idx) {
     printf("Falha no processamento do arquivo.\n");
@@ -185,14 +185,20 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
   char idx_status;
   fread(&idx_status, sizeof(char), 1, idx);
   fclose(idx);
-  
+
   if (idx_status == '0') { // Status inconsistente do índice
     printf("Falha no processamento do arquivo.\n");
     delete_header(&header);
     fclose(bin);
     return;
   }
-  
+
+  // ROTINA DE CARREGAMENTO: lê sequencialmente o arquivo de índice e o
+  // armazena por completo em um vetor em RAM. A busca indexada por codEstacao
+  // é feita nesse vetor (busca binária em memória), sem seeks em disco.
+  int num_entries = 0;
+  IndexEntry *index_entries = load_index(index_filename, &num_entries);
+
   for (int i = 0; i < n; i++) {
     int m;
     scanf("%d", &m);
@@ -229,9 +235,11 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
     Record *record = new_record();
     
     if (target_codEstacao != -1) {
-      // ========= BUSCA INDEXADA =========
-      int target_rrn = search_index(index_filename, target_codEstacao);
-      
+      // ========= BUSCA INDEXADA (em RAM) =========
+      // codEstacao é chave primária (sem repetição): a busca é feita pelo
+      // índice em memória e para no primeiro (único) registro encontrado.
+      int target_rrn = search_index_ram(index_entries, num_entries, target_codEstacao);
+
       if (target_rrn != -1) {
         fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET); // Pula direto pro registro
         
@@ -245,8 +253,10 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
       }
     } else {
       // ========= BUSCA SEQUENCIAL =========
+      // A busca não é por codEstacao. Os demais campos podem ter valores
+      // repetidos, então é necessário percorrer todo o arquivo de dados.
       fseek(bin, HEADER_SIZE, SEEK_SET); // Volta para o primeiro registro
-      
+
       while (read_record_binary(bin, record)) {
         if (!is_removed(record) && match_record(record, criteria, m)) {
           print_record_one_line(record);
@@ -263,7 +273,9 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
     free(criteria);
     if (i < n - 1) printf("\n");
   }
-  
+
+  // Funcionalidade apenas de leitura: libera o índice em RAM (não há reescrita)
+  free(index_entries);
   delete_header(&header);
   fclose(bin);
 }
