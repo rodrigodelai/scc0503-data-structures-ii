@@ -1,5 +1,5 @@
 MAIN = main.c
-UTIL = query_create.c query_select.c header.c record.c utils.c index.c query_update.c graph.c
+UTIL = query_create.c query_select.c header.c record.c utils.c index.c query_update.c graph.c graph_adjacency.c graph_path.c graph_mst.c graph_cycles.c
 BINARY = executable
 
 all:
