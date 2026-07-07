@@ -1,14 +1,14 @@
 #include "graph.h"
 
 /*
- * [Funcionalidade 13] Contagem de ciclos simples a partir da estacao de origem.
+ * [Funcionalidade 13] Contagem de ciclos simples a partir da estacao de origem
  */
 
 /**
  * Busca em profundidade com backtracking que conta os ciclos simples que partem
  * e retornam a origem. Ao encontrar uma aresta para a origem, um ciclo e
  * contado; vertices ja no caminho atual (visited) nao sao reexplorados,
- * garantindo que nenhum vertice se repita (exceto origem = destino).
+ * garantindo que nenhum vertice se repita (exceto origem = destino)
  */
 static long count_cycles(Graph *g, int u, int origin, char *visited) {
   long total = 0;
@@ -33,7 +33,7 @@ void graph_count_cycles(char *bin_filename, char *origin) {
   int s = find_vertex(g, origin);
 
   // Origem sem arestas de saida (ou inexistente como vertice): nao ha como
-  // sair e retornar, portanto nenhum ciclo (imprime -1).
+  // sair e retornar, portanto nenhum ciclo (imprime -1)
   if (s < 0) {
     printf("Quantidade de ciclos: -1\n");
     delete_graph(&g);
@@ -45,7 +45,7 @@ void graph_count_cycles(char *bin_filename, char *origin) {
   long cycles = count_cycles(g, s, s, visited);
   free(visited);
 
-  // Se nao ha nenhum ciclo (impossivel voltar a origem), imprime -1.
+  // Se nao ha nenhum ciclo (impossivel voltar a origem), imprime -1
   if (cycles == 0) printf("Quantidade de ciclos: -1\n");
   else printf("Quantidade de ciclos: %ld\n", cycles);
 

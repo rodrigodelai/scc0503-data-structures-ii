@@ -6,17 +6,17 @@
 /*
  * TAD Grafo: construcao a partir do arquivo de dados, liberacao e busca de
  * vertices. As quatro funcionalidades (10 a 13) ficam em arquivos separados e
- * usam as operacoes declaradas em graph.h.
+ * usam as operacoes declaradas em graph.h
  */
 
-// Rotulo usado nas arestas de integracao (linha "Integracao", acentuada).
+// Rotulo usado nas arestas de integracao (linha "Integracao", acentuada)
 #define LINE_INTEGRATION "Integração"
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Funcoes auxiliares internas de construcao
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Comparador de strings para qsort (ordena nomes de estacao crescentemente).
+// Comparador de strings para qsort (ordena nomes de estacao crescentemente)
 static int cmp_str(const void *a, const void *b) {
   return strcmp(*(const char **)a, *(const char **)b);
 }
@@ -35,12 +35,12 @@ int find_vertex(Graph *g, const char *name) {
 
 /**
  * Insere um nome de linha em uma aresta, mantendo o vetor de linhas ordenado
- * crescentemente e sem repeticoes. Nomes nulos sao ignorados.
+ * crescentemente e sem repeticoes. Nomes nulos sao ignorados
  */
 static void edge_add_line(Edge *e, const char *line) {
   if (!line) return;
 
-  // Procura a posicao de insercao (mantendo ordem) e detecta duplicatas.
+  // Procura a posicao de insercao (mantendo ordem) e detecta duplicatas
   int pos = e->num_lines;
   for (int i = 0; i < e->num_lines; i++) {
     int c = strcmp(e->lines[i], line);
@@ -49,7 +49,7 @@ static void edge_add_line(Edge *e, const char *line) {
   }
 
   e->lines = realloc(e->lines, (e->num_lines + 1) * sizeof(char *));
-  // Desloca os elementos a direita para abrir espaco na posicao pos.
+  // Desloca os elementos a direita para abrir espaco na posicao pos
   for (int i = e->num_lines; i > pos; i--)
     e->lines[i] = e->lines[i - 1];
   e->lines[pos] = strdup(line);
@@ -60,7 +60,7 @@ static void edge_add_line(Edge *e, const char *line) {
  * Adiciona uma aresta u -> dest_name ao grafo. Se ja existir uma aresta para
  * esse destino, apenas agrega o nome da linha (varios registros com o mesmo par
  * (u, v) representam a mesma aresta com multiplas linhas). Caso contrario, cria
- * a aresta na posicao correta para manter a lista ordenada pelo nome do destino.
+ * a aresta na posicao correta para manter a lista ordenada pelo nome do destino
  */
 static void add_edge(Graph *g, int u, const char *dest_name, int dist, const char *line) {
   Edge *prev = NULL, *cur = g->vertices[u].edges;
@@ -91,12 +91,12 @@ static void add_edge(Graph *g, int u, const char *dest_name, int dist, const cha
 /*
  * Regras de construcao das arestas (para cada registro ativo com estacao u):
  *  - Se codProxEstacao e valido e existe registro com esse codigo: aresta
- *    u -> nome(codProxEstacao), com distancia distProxEstacao e linha nomeLinha.
+ *    u -> nome(codProxEstacao), com distancia distProxEstacao e linha nomeLinha
  *  - Se codEstIntegra e valido e aponta para estacao de nome diferente: aresta
- *    u -> nome(codEstIntegra), com distancia 0 e linha "Integracao".
+ *    u -> nome(codEstIntegra), com distancia 0 e linha "Integracao"
  *
  * O conjunto de vertices e formado apenas pelas estacoes que sao origem de ao
- * menos uma aresta.
+ * menos uma aresta
  */
 Graph *build_graph(char *bin_filename) {
   FILE *bin = fopen(bin_filename, "rb");
@@ -112,7 +112,7 @@ Graph *build_graph(char *bin_filename) {
   }
   delete_header(&header);
 
-  // 1. Leitura de todos os registros ativos para vetores temporarios.
+  // 1. Leitura de todos os registros ativos para vetores temporarios
   int cap = 64, n = 0, max_code = -1;
   int *code = malloc(cap * sizeof(int));      // codEstacao
   char **name = malloc(cap * sizeof(char *)); // nomeEstacao
@@ -152,7 +152,7 @@ Graph *build_graph(char *bin_filename) {
   fclose(bin);
 
   // 2. Mapa codEstacao -> nome da estacao (para resolver os destinos das
-  //    arestas). Cobre todas as estacoes com registro, inclusive terminais.
+  //    arestas). Cobre todas as estacoes com registro, inclusive terminais
   char **code_to_name = NULL;
   if (max_code >= 0) {
     code_to_name = calloc(max_code + 1, sizeof(char *)); // NULL = codigo inexistente
@@ -161,12 +161,12 @@ Graph *build_graph(char *bin_filename) {
         code_to_name[code[i]] = name[i];
   }
 
-  // Helper local: resolve um codigo de estacao para o nome, ou NULL.
+  // Helper local: resolve um codigo de estacao para o nome, ou NULL
   #define RESOLVE(c) ((c) >= 0 && (c) <= max_code ? code_to_name[c] : NULL)
 
   // 3. Conjunto de vertices V = nomes das estacoes que sao ORIGEM de alguma
   //    aresta (possuem codProxEstacao resolvivel ou codEstIntegra resolvivel
-  //    para nome diferente). Coleta os nomes-origem, ordena e remove duplicatas.
+  //    para nome diferente). Coleta os nomes-origem, ordena e remove duplicatas
   char **src = malloc((n > 0 ? n : 1) * sizeof(char *));
   int ns = 0;
   for (int i = 0; i < n; i++) {
@@ -190,10 +190,10 @@ Graph *build_graph(char *bin_filename) {
   }
   free(src);
 
-  // 4. Criacao das arestas, percorrendo os registros na ordem de leitura (RRN).
+  // 4. Criacao das arestas, percorrendo os registros na ordem de leitura (RRN)
   for (int i = 0; i < n; i++) {
     int u = find_vertex(g, name[i]);
-    if (u < 0) continue; // registro sem arestas: sua estacao nao e vertice
+    if (u < 0) continue; // registro sem arestas: estacao nao e vertice
 
     char *pname = RESOLVE(pcode[i]);
     if (pname) add_edge(g, u, pname, pdist[i], line[i]);
@@ -203,14 +203,14 @@ Graph *build_graph(char *bin_filename) {
       add_edge(g, u, iname, 0, LINE_INTEGRATION);
   }
 
-  // 5. Resolve o indice em V de cada destino (fica -1 se o destino nao e vertice).
+  // 5. Resolve o indice em V de cada destino (fica -1 se o destino nao e vertice)
   for (int i = 0; i < g->num_vertices; i++)
     for (Edge *e = g->vertices[i].edges; e; e = e->next)
       e->dest_idx = find_vertex(g, e->dest_name);
 
   #undef RESOLVE
 
-  // Libera os vetores temporarios (as strings ja foram copiadas para o grafo).
+  // Libera os vetores temporarios (as strings ja foram copiadas para o grafo)
   for (int i = 0; i < n; i++) { free(name[i]); free(line[i]); }
   free(code); free(name); free(pcode); free(pdist); free(line); free(icode);
   free(code_to_name);

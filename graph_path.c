@@ -12,7 +12,7 @@ void graph_shortest_path(char *bin_filename, char *origin, char *dest) {
   int t = find_vertex(g, dest);
   int nv = g->num_vertices;
 
-  // Origem ou destino inexistentes (como vertice): nao ha caminho possivel.
+  // Origem ou destino inexistentes (como vertice): nao ha caminho possivel
   if (s < 0 || t < 0) {
     printf("Não existe caminho entre as estações solicitadas.\n");
     delete_graph(&g);
@@ -27,7 +27,7 @@ void graph_shortest_path(char *bin_filename, char *origin, char *dest) {
 
   // Laco principal de Dijkstra. Como o vetor de vertices e ordenado por nome,
   // percorrer os indices em ordem crescente ao escolher o proximo vertice de
-  // menor distancia resolve automaticamente o empate pelo menor nome (i).
+  // menor distancia resolve automaticamente o empate pelo menor nome (i)
   for (int iter = 0; iter < nv; iter++) {
     int u = -1;
     long best = GRAPH_INF;
@@ -36,7 +36,7 @@ void graph_shortest_path(char *bin_filename, char *origin, char *dest) {
     if (u < 0) break; // restantes inalcancaveis
     visited[u] = 1;
 
-    // Relaxa as arestas de saida de u (ignorando destinos que nao sao vertices).
+    // Relaxa as arestas de saida de u (ignorando destinos que nao sao vertices)
     // A atualizacao ocorre apenas com melhora estrita; como u e finalizado em
     // ordem de menor distancia (e, em empate, menor nome), o predecessor
     // escolhido respeita as regras de desempate.
@@ -55,7 +55,7 @@ void graph_shortest_path(char *bin_filename, char *origin, char *dest) {
     int len = 0;
     for (int x = t; x != -1; x = prev[x]) path[len++] = x;
 
-    // O numero de estacoes percorridas nao inclui a origem, mas inclui o destino.
+    // O numero de estacoes percorridas nao inclui a origem, mas inclui o destino
     printf("Numero de estacoes que serao percorridas: %d\n", len - 1);
     printf("Distancia que sera percorrida: %ld\n", dist[t]);
     for (int i = len - 1; i >= 0; i--) {
