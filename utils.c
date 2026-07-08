@@ -12,6 +12,17 @@ int read_integer() {
   return value;
 }
 
+int read_int_same_line(int *out) {
+  int c;
+  // Pula espaços e tabs, mas NÃO passa para a próxima linha.
+  while ((c = getchar()) == ' ' || c == '\t')
+    ;
+  if (c == '\n' || c == '\r' || c == EOF)
+    return 0; // a linha terminou: não há inteiro aqui
+  ungetc(c, stdin); // devolve o primeiro dígito e lê o inteiro completo
+  return scanf("%d", out) == 1 ? 1 : 0;
+}
+
 char* read_string() {
   char *str = malloc(100 * sizeof(char));
   scanf("%s", str);

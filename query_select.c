@@ -199,9 +199,13 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
   int num_entries = 0;
   IndexEntry *index_entries = load_index(index_filename, &num_entries);
 
-  for (int i = 0; i < n; i++) {
+  // Quando n >= 0, executa exatamente n buscas. Quando n < 0 (número de buscas
+  // ausente na linha de comando), lê buscas até o fim da entrada. Em ambos os
+  // casos, para se a leitura do próximo m falhar (entrada esgotada).
+  for (int i = 0; (n < 0) || (i < n); i++) {
     int m;
-    scanf("%d", &m);
+    if (scanf("%d", &m) != 1) break; // entrada esgotada
+    if (i > 0) printf("\n");         // separa buscas consecutivas por uma linha em branco
 
     Criterion *criteria = malloc(m * sizeof(Criterion));
     int target_codEstacao = -1; // -1 indica que a chave primária não é critério
@@ -271,7 +275,6 @@ void select_where_indexed(char *bin_filename, char *index_filename, int n) {
 
     delete_record(&record);
     free(criteria);
-    if (i < n - 1) printf("\n");
   }
 
   // Funcionalidade apenas de leitura: libera o índice em RAM (não há reescrita)

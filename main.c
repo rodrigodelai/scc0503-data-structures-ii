@@ -48,7 +48,10 @@ int main() {
 		case 6:
             bin_filename = read_string();
             char *index_filename_6 = read_string(); // Nome diferente para evitar confusão com o case 5
-            int num_searches = read_integer();
+            // O número de buscas pode não vir na linha de comando. Se estiver
+            // ausente, usamos -1 para indicar "ler buscas até o fim da entrada".
+            int num_searches;
+            if (!read_int_same_line(&num_searches)) num_searches = -1;
             select_where_indexed(bin_filename, index_filename_6, num_searches);
             delete_string(&index_filename_6);
             delete_string(&bin_filename);
