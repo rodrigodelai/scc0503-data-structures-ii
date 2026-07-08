@@ -397,10 +397,11 @@ void update_records(char *bin_filename, char *index_filename, int n) {
                         fseek(bin, HEADER_SIZE + target_rrn * RECORD_SIZE, SEEK_SET);
                         write_record_binary(bin, record);
                         
-                        // Atualiza o índice caso a chave tenha mudado: insere a
-                        // nova chave (a chave antiga permanece no índice, pois a
-                        // atualização apenas adiciona a chave do registro alterado)
+                        // Busca INDEXADA: a chave de busca é o próprio codEstacao
+                        // antigo, que é conhecido. Ao mudar a chave, removemos a
+                        // entrada antiga do índice e inserimos a nova no lugar.
                         if (old_cod != new_cod) {
+                            remove_from_index(index_entries, &num_entries, old_cod);
                             add_to_index(&index_entries, &num_entries, new_cod, target_rrn);
                         }
                     }
@@ -419,9 +420,9 @@ void update_records(char *bin_filename, char *index_filename, int n) {
                     fseek(bin, HEADER_SIZE + current_rrn * RECORD_SIZE, SEEK_SET);
                     write_record_binary(bin, record); 
                     
-                    // Atualiza o índice caso a chave tenha mudado: insere a nova
-                    // chave (a chave antiga permanece no índice, pois a
-                    // atualização apenas adiciona a chave do registro alterado)
+                    // Busca SEQUENCIAL (por campos que não a chave primária):
+                    // apenas inserimos a nova chave no índice; a chave antiga
+                    // permanece, pois ela não era o critério de busca.
                     if (old_cod != new_cod) {
                         add_to_index(&index_entries, &num_entries, new_cod, current_rrn);
                     }
